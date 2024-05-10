@@ -1,11 +1,16 @@
+import '../i18n/i18n'
 import '../styles/globals.css';
-import RootLayout from '../components/RootLayout';
+import Layout from '../components/Layout/Layout';
+
 
 function MyApp({ Component, pageProps }) {
   return (
-    <RootLayout>
-      <Component {...pageProps} />
-    </RootLayout>
+    
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+    
+    
   );
 }
 
