@@ -1,8 +1,15 @@
 import Carousel from "@/components/Carousel";
+import Head from "next/head";
 
 const HomePage = () => {
   return (
-    <Carousel />
+    <>
+      <Head>
+        <title>Star Wars App</title>
+      </Head>
+      <Carousel />
+    </>
+    
   );
 }
 

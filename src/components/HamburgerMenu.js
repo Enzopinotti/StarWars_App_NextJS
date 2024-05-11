@@ -1,8 +1,4 @@
-// Dentro del componente HamburgerMenu.js
-import React from 'react'
-import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
-import Image from 'next/image';
+import React, { useState } from 'react';
 
 const HamburgerMenu = ({ onToggle }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -12,17 +8,13 @@ const HamburgerMenu = ({ onToggle }) => {
         onToggle(!isOpen);
     };
 
-
     return (
-
         <button onClick={toggleMenu} className="w-10 h-10 relative focus:outline-none overflow-hidden">
-            <Image
+            <img
                 src="/images/icons/hamburgerMenu.png"
                 alt="Menu"
-                layout="fill"
-                objectFit="cover"  // Utiliza 'cover' para permitir cortes
-                className={`transition-transform duration-500 ease-in-out ${
-                    isOpen ? 'scale-y-150' : 'scale-y-100'}`}  // Escala solo verticalmente
+                className={`absolute top-0 left-0 w-full h-full object-cover transition-transform duration-500 ease-in-out ${
+                    isOpen ? 'scale-y-150' : 'scale-y-100'}`}  // Asegúrate de que el objeto se escala solo verticalmente
             />
         </button>
     );

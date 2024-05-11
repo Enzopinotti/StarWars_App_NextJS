@@ -1,10 +1,18 @@
 import React from 'react';
-import Image from 'next/image'; 
+import Image from 'next/image';
 
 const Logo = () => {
   return (
     <div className="logo-container">
-      <Image src="/images/logo.png" alt="Star Wars Logo" width={150} height={50} />
+      <img
+        src="/images/logo.png"
+        alt="Star Wars Logo"
+        style={{
+          width: '150px',
+          height: '65px',
+          objectFit: 'cover'  // Esta es una forma de aplicar estilos directamente si prefieres inline styles
+        }}
+      />
     </div>
   );
 };
