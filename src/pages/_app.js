@@ -1,5 +1,5 @@
-import '../i18n/i18n'
 import '../styles/globals.css';
+import '../i18n/i18n'
 import Layout from '../components/Layout/Layout';
 
 

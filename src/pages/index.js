@@ -1,10 +1,8 @@
-import Link from 'next/link';
+import Carousel from "@/components/Carousel";
 
 const HomePage = () => {
   return (
-    <h1 className="text-2xl font">
-        Hello world!
-    </h1>
+    <Carousel />
   );
 }
 

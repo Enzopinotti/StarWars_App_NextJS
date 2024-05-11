@@ -1,4 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;700&display=swap');
+
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    border: 0;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    background-image: url('/images/bgBody.webp');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+}
+
+input, button, textarea, select {
+    font: inherit;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+    overflow-wrap: break-word;
+}
+
+#root, #__next {
+    isolation: isolate;
+    min-height: 100%;
+
+}
+
+.body-bg {
+    background-image: url('/images/bgBody.webp');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.header-bg{
+    background-image:url('/images/header_border.png');
+    background-position: center;
+    background-size: cover;
+}
+
+.navbar-gradient {
+    position: relative;
+}
+.navbar-gradient::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, 
+        #0D121C 0%,     /* Gris oscuro en la parte superior */
+        #1D2129 61%,    /* Azul oscuro en el medio */
+        #2D3037 80%,    /* Gris más claro cerca del final */
+        #606060 100%
+    );  /* Gris muy oscuro en el fondo */
+    opacity: 0.7;
+    z-index: -1;
+}
 
