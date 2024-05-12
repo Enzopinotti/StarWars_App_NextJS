@@ -3,8 +3,15 @@
     "filmTitle": "Peliculas",
     "characterTitle": "Personajes",
     "explore": "EXPLORA",
+    "learn": "APRENDE",
     "theVastUniverse": "EL VASTO UNIVERSO",
     "of": "DE",
-    "moreAboutMe": "Más Sobre Mí"
-}
+    "moreAboutMe": "Más Sobre Mí",
+    "ofYours": "SOBRE TUS",
+    "character": "PERSONAJE",
+    "film": "PELICULAS",
+    "connect": "CONECTA",
+    "withYou": "CON TUS",
+    "favorites": "FAVORITAS"
 
+}

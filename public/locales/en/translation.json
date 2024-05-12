@@ -3,7 +3,14 @@
     "filmTitle": "Films",
     "characterTitle": "Characters",
     "explore": "EXPLORE",
+    "discover": "DISCOVER",
     "theVastUniverse": "THE VAST UNIVERSE",
     "of": "OF",
-    "moreAboutMe": "More About Me"
+    "moreAboutMe": "More About Me",
+    "YourFavorite": "Your Favorite",
+    "character": "CHARACTER",
+    "film": "FILMS",
+    "connect": "CONNECT",
+    "withYou": "WITH YOURS",
+    "favorites": ""
 }

@@ -24,7 +24,7 @@ const Footer = () => {
 
   return (
     <footer className="bg-black text-white text-center py-8">
-      <p className="text-lg mb-4">{t('moreAboutMe')}</p>
+      <p className="text-lg mb-4 font-robotoMono">{t('moreAboutMe')}</p>
       <div className="flex justify-center space-x-6 mb-4">
         <Link href="https://github.com/Enzopinotti">
           <img src="/images/icons/GitHub.png" alt="Git" width="30" height="40" />
@@ -36,7 +36,7 @@ const Footer = () => {
           <img src="/images/icons/Figma.png" alt="Figma" width="30" height="40" />
         </Link>
       </div>
-      <p>{t('footerText')}</p>
+      <p className="font-robotoMono">{t('footerText')}</p>
     </footer>
   );
 };
