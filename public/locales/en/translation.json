@@ -18,10 +18,21 @@
     "gender_male": "Male",
     "gender_female": "Female",
     "gender_indefinido": "Undefined",
+    "gender_hermaphrodite": "Hermaphrodite",
     "eye_color_blue": "Blue",
     "eye_color_brown": "Brown",
     "eye_color_green": "Green",
     "eye_color_red": "Red",
     "eye_color_yellow": "Yellow",
-    "eye_color_blue-gray": "Blue Gray"
+    "eye_color_blue-gray": "Blue Gray",
+    "eye_color_black": "Black",
+    "eye_color_white": "White",
+    "eye_color_gold": "Gold",
+    "eye_color_green,_yellow": "Green And Yellow",
+    "eye_color_red,blue": "Red And Blue",
+    "eye_color_orange": "Orange",
+    "eye_color_pink": "Pink",
+    "eye_color_hazel": "Hazel",
+    "eye_color_unknown": "Unknown"
+
 }

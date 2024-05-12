@@ -18,11 +18,21 @@
     "gender_male": "Masculino",
     "gender_female": "Femenino",
     "gender_indefinido": "Indefinido",
+    "gender_hermaphrodite": "Hermafrodita",
     "eye_color_blue": "Azul",
     "eye_color_brown": "Marrón",
     "eye_color_green": "Verde",
     "eye_color_red": "Rojo",
     "eye_color_yellow": "Amarillo",
-    "eye_color_blue-gray": "Gris Azulado"
+    "eye_color_blue-gray": "Gris Azulado",
+    "eye_color_black": "Negro",
+    "eye_color_white": "Blanco",
+    "eye_color_gold": "Oro",
+    "eye_color_green,_yellow": "Verde y Amarillo",
+    "eye_color_red,blue": "Rojo y Azul",
+    "eye_color_orange": "Naranja",
+    "eye_color_pink": "Rosa",
+    "eye_color_hazel": "Avellana",
+    "eye_color_unknown": "Desconocido"
 
 }
