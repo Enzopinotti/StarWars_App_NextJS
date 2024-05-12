@@ -13,6 +13,7 @@ export const theme = {
       'dark-red': '#8b0000',
       'stellar-white': '#FFFFFF',
       'silver': '#C0C0C0',
+      'black-opacity-80': 'rgba(0, 0, 0, 0.8)',
     },
     fontFamily: {
       orbitron: ['Orbitron', 'sans-serif'],

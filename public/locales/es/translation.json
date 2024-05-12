@@ -12,6 +12,17 @@
     "film": "PELICULAS",
     "connect": "CONECTA",
     "withYou": "CON TUS",
-    "favorites": "FAVORITAS"
+    "favorites": "FAVORITAS",
+    "gender": "Genero",
+    "eyeColor": "Color De Ojos",
+    "gender_male": "Masculino",
+    "gender_female": "Femenino",
+    "gender_indefinido": "Indefinido",
+    "eye_color_blue": "Azul",
+    "eye_color_brown": "Marrón",
+    "eye_color_green": "Verde",
+    "eye_color_red": "Rojo",
+    "eye_color_yellow": "Amarillo",
+    "eye_color_blue-gray": "Gris Azulado"
 
 }

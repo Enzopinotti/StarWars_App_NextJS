@@ -12,5 +12,16 @@
     "film": "FILMS",
     "connect": "CONNECT",
     "withYou": "WITH YOURS",
-    "favorites": ""
+    "favorites": "",
+    "gender": "Gender",
+    "eyeColor": "Eye Color",
+    "gender_male": "Male",
+    "gender_female": "Female",
+    "gender_indefinido": "Undefined",
+    "eye_color_blue": "Blue",
+    "eye_color_brown": "Brown",
+    "eye_color_green": "Green",
+    "eye_color_red": "Red",
+    "eye_color_yellow": "Yellow",
+    "eye_color_blue-gray": "Blue Gray"
 }
