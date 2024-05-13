@@ -13,8 +13,7 @@ const HamburgerMenu = ({ onToggle }) => {
             <img
                 src="/images/icons/hamburgerMenu.png"
                 alt="Menu"
-                className={`absolute top-0 left-0 w-full h-full object-cover transition-transform duration-500 ease-in-out ${
-                    isOpen ? 'scale-y-150' : 'scale-y-100'}`}  // Asegúrate de que el objeto se escala solo verticalmente
+                className={`absolute top-0 left-0 w-full h-full object-cover transition-transform duration-500 ease-in-out ${isOpen ? 'scale-y-150' : 'scale-y-100'}`}
             />
         </button>
     );

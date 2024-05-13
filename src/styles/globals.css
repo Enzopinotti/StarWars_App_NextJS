@@ -7,6 +7,16 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+
 * {
     margin: 0;
     padding: 0;
@@ -48,6 +58,10 @@ p, h1, h2, h3, h4, h5, h6 {
 
 }
 
+.pulse-animation {
+    animation: pulse 2s infinite ease-in-out;
+}
+
 
 .header-bg{
     background-image:url('/images/header_border.png');
@@ -74,4 +88,14 @@ p, h1, h2, h3, h4, h5, h6 {
     opacity: 0.7;
     z-index: -1;
 }
-
+.scrollbar-thin {
+    scrollbar-width: thin; /* 'auto' or 'thin' */
+  }
+  
+  .scrollbar-thumb-gray-900 {
+    --tw-scrollbar-thumb: #1a202c; /* scrollbar-thumb color */
+  }
+  
+  .scrollbar-track-gray-100 {
+    --tw-scrollbar-track: #f7fafc; /* scrollbar-track color */
+  }

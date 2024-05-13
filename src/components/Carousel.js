@@ -8,7 +8,7 @@ const Carousel = () => {
     const [scrollX, setScrollX] = useState(0);
     const [ready, setReady] = useState(false);
     const [imageWidth, setImageWidth] = useState(0); // Estado para almacenar el ancho de la ventana
-    console.log(i18n.language)
+    
     useEffect(() => {
         const handleLoaded = () => {
             setReady(true);

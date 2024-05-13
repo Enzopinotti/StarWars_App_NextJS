@@ -6,7 +6,7 @@ const Pagination = ({ currentPage, totalCount, pageSize, onPageChange }) => {
   const visiblePages = getVisiblePages(currentPage, pageCount);
 
   return (
-    <div className="flex justify-center items-center space-x-6 w-full mb-10">
+    <div className="flex justify-center items-center space-x-3 w-full mb-10">
       <ButtonPagination
         number="&lt;"
         onClick={() => onPageChange(currentPage - 1)}
@@ -15,11 +15,11 @@ const Pagination = ({ currentPage, totalCount, pageSize, onPageChange }) => {
       />
       {visiblePages.map(page => (
         <ButtonPagination
-          key={page}
-          number={page}
-          onClick={() => typeof page === 'number' ? onPageChange(page) : null}
-          disabled={typeof page !== 'number'}
-          isActive={currentPage === page}
+          key={page.key}
+          number={page.value}
+          onClick={() => typeof page.value === 'number' ? onPageChange(page.value) : null}
+          disabled={typeof page.value !== 'number'}
+          isActive={currentPage === page.value}
         />
       ))}
       <ButtonPagination
@@ -32,17 +32,23 @@ const Pagination = ({ currentPage, totalCount, pageSize, onPageChange }) => {
   );
 };
 
+
 function getVisiblePages(currentPage, pageCount) {
   let pages = [];
-  pages.push(currentPage);
-  if (currentPage > 1) pages.unshift(currentPage - 1);
-  if (currentPage < pageCount) pages.push(currentPage + 1);
+  let key = 0;  // Contador para asignar claves únicas
 
-  if (currentPage - 1 > 1) pages.unshift('...');
-  if (currentPage + 1 < pageCount) pages.push('...');
+  if (pageCount === 1) return [{ key: 'page-1', value: 1 }]; // Si solo hay una página
 
-  if (pages[0] !== 1) pages.unshift(1);
-  if (pages[pages.length - 1] !== pageCount) pages.push(pageCount);
+  if (currentPage > 1) pages.push({ key: `page-${currentPage - 1}`, value: currentPage - 1 });
+  pages.push({ key: `page-${currentPage}`, value: currentPage });
+  if (currentPage < pageCount) pages.push({ key: `page-${currentPage + 1}`, value: currentPage + 1 });
+
+  // Agregar claves únicas a los puntos suspensivos
+  if (currentPage - 2 > 1) pages.unshift({ key: `ellipsis-${key++}`, value: '...' });
+  if (currentPage + 2 < pageCount) pages.push({ key: `ellipsis-${key++}`, value: '...' });
+
+  if (currentPage > 2) pages.unshift({ key: `page-1`, value: 1 });
+  if (currentPage < pageCount - 1) pages.push({ key: `page-${pageCount}`, value: pageCount });
 
   return pages;
 }
