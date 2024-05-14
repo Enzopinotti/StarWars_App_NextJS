@@ -39,12 +39,12 @@ const CharacterDetail = () => {
 
 
     return (
-        <div className="text-white rounded-3xl shadow-xl bg-gradient-to-t from-black-opacity-80 to-transparent p-5 m-5">
-            <h2 className="text-center font-robotoMono text-xl mb-4">{character.name}</h2>
+        <div className="text-white rounded-3xl shadow-xl bg-gradient-to-t from-black-opacity-80 to-transparent p-5 m-5 relative">
+            <h2 className="text-center font-robotoMono text-xl mb-4 absolute top-8 left-10">{character.name}</h2>
             <img src="/images/generic/img_generic_character.jpeg" alt={character.name} className="w-full object-cover rounded-tr-3xl rounded-tl-3xl" />
                 <div className="p-4">
                     <p className="flex justify-between pb-4"><strong className='text-mikado-yellow '>{t('eyeColor')}:</strong> {t(eyeColorKey)}</p>
-                    <p className="flex justify-between pb-4"><strong className='text-mikado-yellow '>{t('birthYear')}:</strong> {character.birth_year}</p>
+                    <p className="flex justify-between pb-4"><strong className='text-mikado-yellow '>{t('birthYear')}:</strong> {t(character.birth_year)}</p>
                     <p className="flex justify-between pb-4"><strong className='text-mikado-yellow '>{t('hairColor')}:</strong> {t(hairColorKey)}</p>
                     <p className="flex justify-between pb-4"><strong className='text-mikado-yellow '>{t('height')}:</strong> {character.height} cm</p>
                     <p className="flex justify-between pb-4"><strong className='text-mikado-yellow '>{t('skinColor')}:</strong> {t(skinColorKey)}</p>

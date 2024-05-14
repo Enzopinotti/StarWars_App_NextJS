@@ -14,7 +14,7 @@ const CharacterCard = ({ character }) => {
     return (
         <Link href={`/characters/${characterId}`}>
            
-                <section className="text-white rounded-3xl shadow-xl bg-gradient-to-t from-black-opacity-80 to-transparent">
+                <section className="text-white rounded-3xl shadow-xl bg-gradient-to-t from-black-opacity-80 to-transparent ">
                     <article>
                         <img src="/images/generic/img_generic_character.jpeg" alt={character.name} className="w-full object-cover rounded-tr-3xl rounded-tl-3xl" />
                     </article>

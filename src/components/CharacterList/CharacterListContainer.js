@@ -8,23 +8,26 @@ const CharacterListContainer = ({ eyeColorFilter, genderFilter, onColorsAndGende
   const [allCharacters, setAllCharacters] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1); // Inicializa con 1 por defecto
   const [totalCount, setTotalCount] = useState(0);
   const [eyeColors, setEyeColors] = useState(new Set());
   const [genders, setGenders] = useState(new Set());
 
   useEffect(() => {
+    const storedPage = localStorage.getItem('currentPage');
+    if (storedPage) {
+      setCurrentPage(parseInt(storedPage));
+    }
     fetchAllCharacters();
   }, []);
 
   useEffect(() => {
     if (!loading) {
-      // Cuando la carga ha terminado, actualizar los filtros y avisar al componente padre
       const uniqueEyeColors = [...eyeColors];
       const uniqueGenders = [...genders];
       onColorsAndGendersReady(uniqueEyeColors, uniqueGenders);
     }
-  }, [loading, eyeColors, genders]); // Depende del estado de carga y los sets de filtros
+  }, [loading, eyeColors, genders]);
 
   const fetchAllCharacters = async (page = 1) => {
     setLoading(true);
@@ -66,15 +69,15 @@ const CharacterListContainer = ({ eyeColorFilter, genderFilter, onColorsAndGende
     });
     setCharacters(filtered);
     setTotalCount(filtered.length);
-    setCurrentPage(1); // Resetea la página a 1 cada vez que se aplican los filtros
   };
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
+    localStorage.setItem('currentPage', newPage.toString());
   };
 
   if (error) return <div>Error: {error}</div>;
-  if (loading && characters.length === 0) return <div className="h-screen"></div>;
+  if (loading && characters.length === 0) return <div className="h-screen flex justify-center items-center">Loading...</div>;
 
   return (
     <>

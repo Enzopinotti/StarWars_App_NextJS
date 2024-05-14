@@ -10,9 +10,9 @@ const Logo = () => {
         src="/images/logo.png"
         alt="Star Wars Logo"
         style={{
-          width: '150px',
+          width: '200px',
           height: '65px',
-          objectFit: 'cover'  
+          objectFit: 'contain'  
         }}
       />
       </Link>
