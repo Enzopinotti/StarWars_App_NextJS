@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import CharacterCard from '../CharacterCard';
 
-const CharacterList = ({ characters, isFiltering }) => {
+const CharacterList = ({ characters, isFiltering, totalCount, pageSize, currentPage }) => {
   const [visibleCharacters, setVisibleCharacters] = useState(characters);
 
   useEffect(() => {
@@ -18,7 +18,8 @@ const CharacterList = ({ characters, isFiltering }) => {
         columns = 4;
       }
 
-      const fullRowsCount = isFiltering ? characters.length : Math.floor(characters.length / columns) * columns;
+      const isLastPage = currentPage * pageSize >= totalCount;
+      const fullRowsCount = (isFiltering || isLastPage) ? characters.length : Math.floor(characters.length / columns) * columns;
       setVisibleCharacters(characters.slice(0, fullRowsCount));
     };
 
@@ -28,7 +29,7 @@ const CharacterList = ({ characters, isFiltering }) => {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [characters, isFiltering]);  
+  }, [characters, isFiltering, totalCount, pageSize, currentPage]);  
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-6 p-12 mb-4">

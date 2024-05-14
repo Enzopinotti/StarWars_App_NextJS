@@ -8,7 +8,7 @@ const Carousel = () => {
     const { t, i18n } = useTranslation();
     const [scrollX, setScrollX] = useState(0);
     const [ready, setReady] = useState(false);
-    const [imageWidth, setImageWidth] = useState(0);
+    const [imageWidth, setImageWidth] = useState(0); 
 
     useEffect(() => {
         const handleLoaded = () => {
@@ -62,10 +62,10 @@ const Carousel = () => {
                             alt={`Carousel Background ${index}`}
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
-                        <div className="absolute top-12 left-16 flex flex-col text-white text-l font-robotoMono font-bold text-center">
+                        <div className="absolute top-16 left-32 flex flex-col text-white text-xl font-robotoMono font-bold text-center">
                             {image.elements.map((element, elemIndex) => {
                                 if (element.type === 'text') {
-                                    return <em key={elemIndex} className={element.class}>{t(element.content)}</em>;
+                                    return <em key={elemIndex} className={`my-2 ${element.class}`}>{t(element.content)}</em>;
                                 } else if (element.type === 'divider') {
                                     return <hr key={elemIndex} />;
                                 } else if (element.type === 'link') {

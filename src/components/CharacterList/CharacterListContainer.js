@@ -14,10 +14,6 @@ const CharacterListContainer = ({ eyeColorFilter, genderFilter, onColorsAndGende
   const [genders, setGenders] = useState(new Set());
   
   useEffect(() => {
-    const storedPage = localStorage.getItem('currentPage');
-    if (storedPage) {
-      setCurrentPage(parseInt(storedPage));
-    }
     fetchAllCharacters();
   }, []);
 
@@ -62,18 +58,13 @@ const CharacterListContainer = ({ eyeColorFilter, genderFilter, onColorsAndGende
     applyFilters();
   }, [eyeColorFilter, genderFilter, allCharacters]);
 
-
-  
   const applyFilters = () => {
-    console.log('filtros applicados: ', eyeColorFilter, )
-    console.log('allCharacters: ', allCharacters,)
     const filtered = allCharacters.filter(character => {
       const normalizedEyeColor = normalizeString(character.eye_color);
       const normalizedGender = normalizeString(character.gender);
       return (!eyeColorFilter || normalizedEyeColor === eyeColorFilter) &&
              (!genderFilter || normalizedGender === genderFilter);
     });
-    console.log('se filtró: ', filtered)
     setCharacters(filtered);
     setTotalCount(filtered.length);
     setCurrentPage(1); 
@@ -81,16 +72,19 @@ const CharacterListContainer = ({ eyeColorFilter, genderFilter, onColorsAndGende
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
-    localStorage.setItem('currentPage', newPage.toString());
   };
 
   if (error) return <div>Error: {error}</div>;
   if (loading && characters.length === 0) return <div className="h-screen flex justify-center items-center">Loading...</div>;
+
   return (
     <>
       <CharacterList 
         characters={characters.slice((currentPage - 1) * 10, currentPage * 10)}
         isFiltering={!!eyeColorFilter || !!genderFilter}
+        totalCount={totalCount}
+        pageSize={10}
+        currentPage={currentPage}
       />
       <Pagination
         currentPage={currentPage}
