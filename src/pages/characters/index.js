@@ -42,7 +42,7 @@ const CharactersPage = () => {
   return (
     <>
       <Head>
-        <title>{`Characters | ${t('Star Wars')}`}</title>
+        <title>{`Characters | Star Wars')}`}</title>
       </Head>
       <FilterIcon onClick={toggleFilters} />
       {showFilters && (

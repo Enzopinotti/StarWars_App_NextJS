@@ -4,7 +4,7 @@ import React from 'react';
 const Logo = () => {
   return (
     <div className="logo-container">
-      <Link href="./">
+      <Link href="/">
 
       <img
         src="/images/logo.png"

@@ -9,7 +9,7 @@ const FilmsPage = () => {
     fetch('https://swapi.dev/api/films/')
       .then(response => response.json())
       .then(data => {
-        setFilms(data.results.sort((a, b) => a.episode_id - b.episode_id)); // Ordena por ID de episodio
+        setFilms(data.results.sort((a, b) => a.episode_id - b.episode_id)); 
         setLoading(false);
       });
   }, []);
