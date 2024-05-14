@@ -20,7 +20,7 @@ const CharacterFilter = ({ onFilterChange, eyeColorFilter, genderFilter, eyeColo
   if (eyeColors.length === 0 && genders.length === 0) {
     return (
       <div className="flex justify-center items-center p-4 navbar-gradient rounded-lg shadow h-20">
-        <p className='text-white font-orbitron pulse-animation'>Cargando filtros...</p>
+        <p className='text-white font-orbitron pulse-animation'>{t('loadingFilters')}</p>
       </div>
     );
   }

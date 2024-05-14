@@ -1,5 +1,7 @@
 {
     "footerText": "Enzo Daniel Pinotti - Derechos Reservados © 2024",
+    "loading": "Cargando...",
+    "loadingFilters": "Cargando Filtros...",
     "filmTitle": "Peliculas",
     "characterTitle": "Personajes",
     "explore": "EXPLORA",
@@ -8,7 +10,7 @@
     "of": "DE",
     "moreAboutMe": "Más Sobre Mí",
     "ofYours": "SOBRE TUS",
-    "character": "PERSONAJE",
+    "character": "PERSONAJES",
     "characters": "Personajes",
     "director": "Director",
     "episode": "Episodio",

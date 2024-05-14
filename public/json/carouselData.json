@@ -1,0 +1,86 @@
+[
+    {
+      "src": "/images/carousel/carrousel1.png",
+      "elements": [
+        {
+          "type": "text",
+          "content": "explore",
+          "class": "text-5xl"
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "text",
+          "content": "theVastUniverse"
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "text",
+          "content": "of"
+        },
+        {
+          "type": "text",
+          "content": "STAR WARS",
+          "class": "text-mikado-yellow"
+        }
+      ]
+    },
+    {
+      "src": "/images/carousel/carrousel2.png",
+      "elements": [
+        {
+          "type": "text",
+          "content": "learn",
+          "class": "text-5xl"
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "text",
+          "content": "ofYours"
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "link",
+          "content": "character",
+          "href": "/characters"
+        }
+      ]
+    },
+    {
+      "src": "/images/carousel/carrousel3.png",
+      "elements": [
+        {
+          "type": "text",
+          "content": "connect",
+          "class": "text-5xl"
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "text",
+          "content": "withYou"
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "link",
+          "content": "film",
+          "href": "/films"
+        },
+        {
+          "type": "text",
+          "content": "favorites"
+        }
+      ]
+    }
+]
+  

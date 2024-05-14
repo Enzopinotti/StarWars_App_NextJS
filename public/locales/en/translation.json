@@ -1,5 +1,9 @@
 {
     "footerText": "Enzo Daniel Pinotti - All Rights Reserved © 2024",
+    "loading": "Loading...",
+    "loadingFilters": "Loading Filters...",
+    "learn": "LEARN",
+    "ofYours": "OF YOURS",
     "filmTitle": "Films",
     "characterTitle": "Characters",
     "explore": "EXPLORE",
@@ -8,7 +12,7 @@
     "of": "OF",
     "moreAboutMe": "More About Me",
     "YourFavorite": "Your Favorite",
-    "character": "CHARACTER",
+    "character": "CHARACTERS",
     "characters": "Characters",
     "director": "Director",
     "episode": "Episode",
