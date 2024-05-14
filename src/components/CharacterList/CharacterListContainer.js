@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import CharacterList from './CharacterList';
 import Pagination from '../Pagination';
-import { capitalizeFirstLetter, mapGender } from '../../utils';
+import { capitalizeFirstLetter, mapGender, normalizeString } from '../../utils';
 
 const CharacterListContainer = ({ eyeColorFilter, genderFilter, onColorsAndGendersReady }) => {
   const [characters, setCharacters] = useState([]);
   const [allCharacters, setAllCharacters] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1); // Inicializa con 1 por defecto
   const [totalCount, setTotalCount] = useState(0);
   const [eyeColors, setEyeColors] = useState(new Set());
   const [genders, setGenders] = useState(new Set());
-
+  
   useEffect(() => {
     const storedPage = localStorage.getItem('currentPage');
     if (storedPage) {
@@ -38,7 +38,7 @@ const CharacterListContainer = ({ eyeColorFilter, genderFilter, onColorsAndGende
       const newCharacters = data.results.map(character => ({
         ...character,
         name: capitalizeFirstLetter(character.name),
-        eye_color: capitalizeFirstLetter(character.eye_color),
+        eye_color: character.eye_color,
         gender: mapGender(character.gender)
       }));
       setAllCharacters(prev => [...prev, ...newCharacters]);
@@ -62,13 +62,21 @@ const CharacterListContainer = ({ eyeColorFilter, genderFilter, onColorsAndGende
     applyFilters();
   }, [eyeColorFilter, genderFilter, allCharacters]);
 
+
+  
   const applyFilters = () => {
-    const filtered = allCharacters.filter(char => {
-      return (!eyeColorFilter || char.eye_color === eyeColorFilter) &&
-             (!genderFilter || char.gender === genderFilter);
+    console.log('filtros applicados: ', eyeColorFilter, )
+    console.log('allCharacters: ', allCharacters,)
+    const filtered = allCharacters.filter(character => {
+      const normalizedEyeColor = normalizeString(character.eye_color);
+      const normalizedGender = normalizeString(character.gender);
+      return (!eyeColorFilter || normalizedEyeColor === eyeColorFilter) &&
+             (!genderFilter || normalizedGender === genderFilter);
     });
+    console.log('se filtró: ', filtered)
     setCharacters(filtered);
     setTotalCount(filtered.length);
+    setCurrentPage(1); 
   };
 
   const handlePageChange = (newPage) => {
@@ -78,10 +86,12 @@ const CharacterListContainer = ({ eyeColorFilter, genderFilter, onColorsAndGende
 
   if (error) return <div>Error: {error}</div>;
   if (loading && characters.length === 0) return <div className="h-screen flex justify-center items-center">Loading...</div>;
-
   return (
     <>
-      <CharacterList characters={characters.slice((currentPage - 1) * 10, currentPage * 10)} />
+      <CharacterList 
+        characters={characters.slice((currentPage - 1) * 10, currentPage * 10)}
+        isFiltering={!!eyeColorFilter || !!genderFilter}
+      />
       <Pagination
         currentPage={currentPage}
         totalCount={totalCount}

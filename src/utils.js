@@ -5,3 +5,7 @@ export const capitalizeFirstLetter = (string) => {
 export const mapGender = (gender) => {
     return gender === 'n/a' ? 'Indefinido' : capitalizeFirstLetter(gender);
 };
+
+export const normalizeString = (input) => {
+    return input.toLowerCase().replace(/, /g, '_').replace(/ /g, '_');
+  };

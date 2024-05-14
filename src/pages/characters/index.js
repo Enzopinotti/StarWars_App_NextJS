@@ -5,6 +5,7 @@ import FilterIcon from '../../components/FilterIcon';
 import Head from 'next/head';
 import { useTranslation } from 'react-i18next';
 import BubbleFilter from '@/components/BubbleFilter';
+import { normalizeString } from '../../utils';
 
 const CharactersPage = () => {
   const { t } = useTranslation();
@@ -15,10 +16,11 @@ const CharactersPage = () => {
   const [genders, setGenders] = useState([]);
 
   const handleFilterChange = (type, value) => {
+    const normalizedValue = normalizeString(value);
     if (type === 'eyeColor') {
-      setEyeColorFilter(value);
+      setEyeColorFilter(normalizedValue);
     } else if (type === 'gender') {
-      setGenderFilter(value);
+      setGenderFilter(normalizedValue);
     }
   };
 
@@ -31,6 +33,7 @@ const CharactersPage = () => {
   };
 
   const onColorsAndGendersReady = (colors, genders) => {
+    console.log('colores y generos que llegan a index.js de characters',colors, genders);
     setEyeColors(colors);
     setGenders(genders);
   };
@@ -38,7 +41,7 @@ const CharactersPage = () => {
   const toggleFilters = () => {
     setShowFilters(!showFilters);
   };
-
+ 
   return (
     <>
       <Head>

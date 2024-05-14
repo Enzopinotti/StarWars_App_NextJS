@@ -14,10 +14,10 @@ const Navbar = ({ changeLanguage }) => {
         return router.pathname === pathname || router.pathname.startsWith(`${pathname}/`);
     };
 
-    const isDesktop = width >= 1024; // Considera escritorio a partir de 1024px de ancho
+    const isDesktop = width >= 1024; 
 
     if (isDesktop) {
-        // Versión para escritorio
+
         return (
             <div className={`w-full text-white flex justify-between ${currentLanguage ? '' : 'bg-black'}`}>
                 <ul className="flex justify-around w-full h-28">
@@ -46,7 +46,7 @@ const Navbar = ({ changeLanguage }) => {
             </div>
         );
     } else {
-        // Versión para móviles
+
         return (
             <div className={`w-full text-white flex p-6 pb-10 justify-between`}>
                 <ul>
