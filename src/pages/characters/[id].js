@@ -4,28 +4,32 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const CharacterDetail = () => {
-    const router = useRouter();
-    const { id } = router.query;
-    const { t } = useTranslation();
-    const [character, setCharacter] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        if (id) {
-        fetch(`https://swapi.dev/api/people/${id}/`)
-            .then(response => response.json())
-            .then(data => {
-            setCharacter(data);
-            setLoading(false);
-            });
+export async function getServerSideProps(context) {
+    const { id } = context.params;
+    try {
+        const response = await fetch(`https://swapi.dev/api/people/${id}/`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch character');
         }
-    }, [id]);
+        const character = await response.json();
+        return { props: { character } };
+    } catch (error) {
+        return { props: { error: true } };
+    }
+}
 
-    if (loading) {
-        return <div className="h-screen flex justify-center items-center">
-        <p className="text-white font-orbitron">Cargando datos del personaje...</p>
-        </div>;
+const CharacterDetail = ({ character, error }) => {
+    const router = useRouter();
+    const { t } = useTranslation();
+
+
+
+    if (error) {
+        return (
+            <div className="h-screen flex justify-center items-center">
+                <p className="text-white font-orbitron">Error al cargar los datos del personaje.</p>
+            </div>
+        );
     }
 
     if (!character) {

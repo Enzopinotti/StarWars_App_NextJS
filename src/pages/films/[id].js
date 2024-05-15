@@ -1,40 +1,42 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
 import SimpleCharacterCard from '../../components/SimpleCharacterCard';
 import Head from 'next/head';
 
-const FilmDetail = () => {
-  const router = useRouter();
-  const { id } = router.query;
+export async function getServerSideProps(context) {
+  const { id } = context.params;
+  try {
+    const res = await fetch(`https://swapi.dev/api/films/${id}/`);
+    const film = await res.json();
+
+    // Fetch characters
+    const characterPromises = film.characters.map(url =>
+      fetch(url).then(res => res.json())
+    );
+    const characters = await Promise.all(characterPromises);
+
+    return {
+      props: {
+        film,
+        characters,
+      },
+    };
+  } catch (error) {
+    return {
+      props: {
+        error: error.message,
+      },
+    };
+  }
+}
+
+const FilmDetail = ({ film, characters, error }) => {
   const { t } = useTranslation();
-  const [film, setFilm] = useState(null);
-  const [characters, setCharacters] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchFilm = async () => {
-      if (id) {
-        const response = await fetch(`https://swapi.dev/api/films/${id}/`);
-        const data = await response.json();
-        setFilm(data);
-        fetchCharacters(data.characters);
-      }
-    };
-
-    const fetchCharacters = async (characterUrls) => {
-      const promises = characterUrls.map(url => fetch(url).then(res => res.json()));
-      const characterData = await Promise.all(promises);
-      setCharacters(characterData);
-      setLoading(false);
-    };
-
-    fetchFilm();
-  }, [id]);
-
-  if (loading) {
+  if (error) {
     return <div className="h-screen flex justify-center items-center">
-      <p className="text-white font-orbitron">{t('loading')}...</p>
+      <p className="text-white font-orbitron">{t('loading_error')}</p>
     </div>;
   }
 
@@ -45,10 +47,9 @@ const FilmDetail = () => {
   }
 
   return (
-
     <>
       <Head>
-        <title>{`${film.title} | Star Wars')}`}</title>
+        <title>{`${film.title} | Star Wars`}</title>
       </Head>
       <div className="text-white rounded-3xl shadow-xl bg-gradient-to-t from-black-opacity-80 to-transparent p-5 m-5 relative">
         <h2 className="text-center font-orbitron text-xl mb-4 absolute top-8 left-10">{t(film.title)}</h2>
@@ -68,7 +69,6 @@ const FilmDetail = () => {
         </div>
       </div>
     </>
-    
   );
 };
 
