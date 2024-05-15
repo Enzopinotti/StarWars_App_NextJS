@@ -69,7 +69,7 @@ const Carousel = () => {
                                 } else if (element.type === 'divider') {
                                     return <hr key={elemIndex} />;
                                 } else if (element.type === 'link') {
-                                    return <Link key={elemIndex} href={element.href}><BotonTransparente texto={t(element.content)}/></Link>;
+                                    return <Link key={elemIndex} href={element.href} ><BotonTransparente texto={t(element.content)}/></Link>;
                                 }
                                 return null;
                             })}

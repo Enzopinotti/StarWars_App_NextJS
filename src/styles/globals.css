@@ -52,6 +52,10 @@ p, h1, h2, h3, h4, h5, h6 {
     overflow-wrap: break-word;
 }
 
+.transition {
+    transition: transform 0.3s ease-in-out;
+}
+
 #root, #__next {
     isolation: isolate;
     min-height: 100%;
@@ -62,10 +66,8 @@ p, h1, h2, h3, h4, h5, h6 {
     animation: pulse 2s infinite ease-in-out;
 }
 
-.border-mikado-yellow {
-    border-color: #F5C003; 
-    border-width: 2px
-}
+
+
 .header-bg{
     background-image:url('/images/header_border.png');
     background-position: center;
@@ -92,13 +94,22 @@ p, h1, h2, h3, h4, h5, h6 {
     z-index: -1;
 }
 .scrollbar-thin {
-    scrollbar-width: thin; /* 'auto' or 'thin' */
-  }
+    scrollbar-width: thin; 
+}
   
-  .scrollbar-thumb-gray-900 {
-    --tw-scrollbar-thumb: #1a202c; /* scrollbar-thumb color */
-  }
+.scrollbar-thumb-gray-900 {
+    --tw-scrollbar-thumb: #1a202c; 
+}
   
-  .scrollbar-track-gray-100 {
-    --tw-scrollbar-track: #f7fafc; /* scrollbar-track color */
-  }
+.scrollbar-track-gray-100 {
+    --tw-scrollbar-track: #f7fafc; 
+}
+
+.glow-effect-active:hover {
+    text-shadow: 0 0 8px #F5C003; 
+}
+
+.glow-effect-inactive:hover {
+    text-shadow: 0 0 8px #fff; 
+}
+

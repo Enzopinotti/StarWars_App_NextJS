@@ -6,7 +6,6 @@ const CharacterFilter = ({ onFilterChange, eyeColorFilter, genderFilter, eyeColo
     const { t } = useTranslation();
     const [isOpenEyeColor, setIsOpenEyeColor] = useState(false);
     const [isOpenGender, setIsOpenGender] = useState(false);
-
     const translatedEyeColors = eyeColors.map(color => ({
         key: color,
         label: t(`eye_color_${color.toLowerCase().replace(/, /g, '_').replace(/ /g, '_')}`)

@@ -14,6 +14,18 @@ export const theme = {
       'stellar-white': '#FFFFFF',
       'silver': '#C0C0C0',
       'black-opacity-80': 'rgba(0, 0, 0, 0.8)',
+      'black-opacity-60': 'rgba(0, 0, 0, 0.6)',
+      'black-opacity-40': 'rgba(0, 0, 0, 0.4)',
+      'black-opacity-20': 'rgba(0, 0, 0, 0.2)',
+    },
+    animation: {
+      'fade-in': 'fadeIn 1.5s ease-out forwards'
+    },
+    keyframes: {
+      fadeIn: {
+        '0%': { opacity: 0 },
+        '100%': { opacity: 1 }
+      }
     },
     fontFamily: {
       orbitron: ['Orbitron', 'sans-serif'],

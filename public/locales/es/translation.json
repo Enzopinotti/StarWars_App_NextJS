@@ -30,6 +30,7 @@
     "gender_female": "Femenino",
     "gender_indefinido": "Indefinido",
     "gender_hermaphrodite": "Hermafrodita",
+    "gender_n/a": "Indefinido",
     "gender_none": "Ninguno",
     "eye_color_blue": "Azul",
     "eye_color_brown": "Marrón",

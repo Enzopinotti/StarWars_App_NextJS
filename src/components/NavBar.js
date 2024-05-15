@@ -1,5 +1,5 @@
-import React from 'react';
 import Link from 'next/link';
+import React from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
 import { useWindowSize } from '../hooks/WindowSize';
@@ -16,65 +16,35 @@ const Navbar = ({ changeLanguage }) => {
 
     const isDesktop = width >= 1024; 
 
-    if (isDesktop) {
-
-        return (
-            <div className={`w-full text-white flex justify-between ${currentLanguage ? '' : 'bg-black'}`}>
-                <ul className="flex justify-around w-full h-28">
-                    <li className='flex items-center'>
-                        <Link  href="/films">
-                            <p className={`text-lg  pr-8 font-orbitron ${isActive('/films') ? 'text-mikado-yellow' : ''}`}>{t('filmTitle')}</p>
-                        </Link>
-                    </li>
-                    <li className='flex items-center'>
-                        <Link href="/characters">
-                            <p className={`text-lg font-orbitron ${isActive('/characters') ? 'text-mikado-yellow' : ''}`}>{t('characterTitle')}</p>
-                        </Link>
-                    </li>
-                </ul>
-                
-                <section className="pr-5 w-40 flex items-start justify-end">
-                    <button className="pr-3" onClick={() => changeLanguage('en')} 
-                            style={{ color: currentLanguage === 'en' ? '#F5C003' : 'white' }}>
-                        En
-                    </button>/
-                    <button className="pl-3" onClick={() => changeLanguage('es')} 
-                            style={{ color: currentLanguage === 'es' ? '#F5C003' : 'white' }}>
-                        Es
-                    </button>
-                </section>
-            </div>
-        );
-    } else {
-
-        return (
-            <div className={`w-full text-white flex p-6 pb-10 justify-between`}>
-                <ul>
-                    <li>
-                        <Link href="/films">
-                            <p className={`text-lg pb-4 pt-8 font-orbitron ${isActive('/films') ? 'text-mikado-yellow' : ''}`}>{t('filmTitle')}</p>
-                        </Link>
-                    </li>
-                    <li>
-                        <Link href="/characters">
-                            <p className={`text-lg pb-4 pt-8 font-orbitron ${isActive('/characters') ? 'text-mikado-yellow' : ''}`}>{t('characterTitle')}</p>
-                        </Link>
-                    </li>
-                </ul>
-                
-                <section>
-                    <button onClick={() => changeLanguage('en')} 
-                            style={{ color: currentLanguage === 'en' ? '#F5C003' : 'white' }}>
-                        En
-                    </button>/
-                    <button onClick={() => changeLanguage('es')} 
-                            style={{ color: currentLanguage === 'es' ? '#F5C003' : 'white' }}>
-                        Es
-                    </button>
-                </section>
-            </div>
-        );
-    }
+    return (
+        <div className={`w-full text-white flex ${isDesktop ? 'justify-between' : 'flex-col-reverse items-center'} ${currentLanguage ? '' : 'bg-black'}`}>
+            <ul className={`${isDesktop ? 'flex justify-around w-full h-28' : 'flex flex-col items-start space-y-4 mb-10 mt-8 w-full pl-12'}`}>
+                <li className='flex items-center'>
+                    <Link href="/films" >
+                        <button className={`text-lg ${isDesktop ? 'pr-8' : 'py-2'} font-orbitron ${isActive('/films') ? 'text-mikado-yellow glow-effect-active' : 'glow-effect-inactive'}`}>
+                            {t('filmTitle')}
+                        </button>
+                    </Link>
+                </li>
+                <li className='flex items-center'>
+                    <Link href="/characters" >
+                        <button className={`text-lg ${isDesktop ? '' : 'py-2'} font-orbitron ${isActive('/characters') ? 'text-mikado-yellow glow-effect-active' : 'glow-effect-inactive'}`}>
+                            {t('characterTitle')}
+                        </button>
+                    </Link>
+                </li>
+            </ul>
+            
+            <section className={`pr-5 ${isDesktop ? 'w-40 flex items-start justify-end' : 'w-full flex justify-end pr-12 pt-4'}`}>
+                <button className={`pr-3 ${currentLanguage === 'en' ? 'text-mikado-yellow glow-effect-active' : 'glow-effect-inactive'}`} onClick={() => changeLanguage('en')}>
+                    En
+                </button>/
+                <button className={`pl-3 ${currentLanguage === 'es' ? 'text-mikado-yellow glow-effect-active' : 'glow-effect-inactive'}`} onClick={() => changeLanguage('es')}>
+                    Es
+                </button>
+            </section>
+        </div>
+    );
 };
 
 export default Navbar;

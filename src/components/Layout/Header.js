@@ -43,7 +43,6 @@ const Header = () => {
         <header className={`flex-col justify-between items-center ${shouldShowGradient ? 'navbar-gradient' : 'header-bg'}`}>
             <section className="flex justify-between items-center pb-6 pr-10 pl-10 pt-6">
                 <Logo />
-                {/* Muestra el Navbar solo cuando la pantalla es igual o superior a 1024px o el navbar está visible */}
                 {width >= 1024 ? (
                     <div className="flex w-full justify-end items-center">
                         <Navbar changeLanguage={changeLanguage} />

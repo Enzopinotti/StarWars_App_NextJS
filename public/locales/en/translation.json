@@ -30,6 +30,7 @@
     "mass": "Mass",
     "gender_male": "Male",
     "gender_female": "Female",
+    "gender_n/a": "Undefined",
     "gender_indefinido": "Undefined",
     "gender_hermaphrodite": "Hermaphrodite",
     "gender_none": "None",

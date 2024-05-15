@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import FilmCard from '../../components/FilmCard';
+import Head from 'next/head';
 
 const FilmsPage = () => {
   const [films, setFilms] = useState([]);
@@ -21,11 +22,16 @@ const FilmsPage = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-10 p-8">
-      {films.map(film => (
-        <FilmCard key={film.episode_id} film={film} />
-      ))}
-    </div>
+    <>
+      <Head>
+        <title>{`Films | Star Wars')}`}</title>
+      </Head>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-10 p-8">
+        {films.map(film => (
+          <FilmCard key={film.episode_id} film={film} />
+        ))}
+      </div>
+    </>
   );
 };
 
