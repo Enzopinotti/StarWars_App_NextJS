@@ -57,10 +57,6 @@ try {
     ['/', 200],
     ['/en', 200],
     ['/es', 200],
-    ['/en/films', 200],
-    ['/es/films', 200],
-    ['/en/characters', 200],
-    ['/es/characters', 200],
   ];
 
   for (const [path, status] of expected) {
@@ -133,6 +129,7 @@ try {
   console.log('B2 runtime/i18n contract passed.');
   console.log('origin=' + ORIGIN);
   console.log('locales=en,es');
+  console.log('B2 smoke intentionally excludes SWAPI-backed routes; B3 owns upstream behavior.');
   console.log('unsupported-locale=/fr -> 404');
   console.log('security-headers=maintained');
 } finally {
