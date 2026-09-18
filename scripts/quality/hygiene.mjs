@@ -16,12 +16,12 @@ expect(
   'packageManager must pin npm@11.19.0',
 );
 expect(
-  pkg.engines?.node === '>=24.20.0 <25',
-  'Node engine must stay on verified Node 24',
+  pkg.engines?.node === '24.x',
+  'Node engine must stay portable across Vercel-supported Node 24.x',
 );
 expect(
-  pkg.engines?.npm === '>=11.19.0 <12',
-  'npm engine must stay on verified npm 11',
+  pkg.engines?.npm === '>=11 <12',
+  'npm engine must stay on the supported npm 11 major',
 );
 expect(read('.nvmrc').trim() === 'v24.20.0', '.nvmrc must pin v24.20.0');
 expect(

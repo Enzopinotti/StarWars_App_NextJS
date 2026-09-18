@@ -33,11 +33,13 @@ Supported locales are English and Spanish. Next.js locale routing is the authori
 
 Runtime/package-manager authority is encoded in:
 
-- `.nvmrc`;
-- `package.json#engines`;
-- `package.json#packageManager`;
-- `.npmrc` with `engine-strict=true`;
+- `.nvmrc` pins the exact local/CI Node version `v24.20.0`;
+- `packageManager` pins the exact local/CI npm version `11.19.0`;
+- `package.json#engines` declares platform portability as Node `24.x` and npm `>=11 <12`;
+- `.npmrc` keeps `engine-strict=true` without requiring a Vercel-specific Node minor;
 - the committed `package-lock.json`.
+
+This split is deliberate: CI verifies the exact development runtime, while deployment platforms such as Vercel are allowed to supply their maintained Node 24.x / npm 11 patch level.
 
 Install exactly from the lockfile:
 
