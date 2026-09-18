@@ -94,7 +94,7 @@ for (const pagePath of [
     `${pagePath} must not hardcode the SWAPI origin`,
   );
   expect(
-    !/\\bfetch\\s*\\(/.test(source),
+    !source.includes('fetch('),
     `${pagePath} must use the maintained SWAPI client instead of direct fetch`,
   );
 }
