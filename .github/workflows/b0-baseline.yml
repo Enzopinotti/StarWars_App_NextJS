@@ -1,0 +1,330 @@
+name: B0 baseline reproduction
+
+on:
+  push:
+    branches:
+      - modernize/2026-next-quality
+    paths:
+      - .github/workflows/b0-baseline.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inventory:
+    name: inventory-node-${{ matrix.node }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - 20.19.5
+          - 24.20.0
+    steps:
+      - name: Checkout exact branch candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Record runtime
+        shell: bash
+        run: |
+          {
+            echo "sha=${GITHUB_SHA}"
+            echo "node=$(node --version)"
+            echo "npm=$(npm --version)"
+          } | tee b0-runtime.txt
+
+      - name: Install exact lockfile
+        id: install
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          npm ci > b0-npm-ci.txt 2>&1
+          code=$?
+          echo "exit=$code" | tee b0-npm-ci-status.txt
+          cat b0-npm-ci.txt
+          exit "$code"
+
+      - name: Full audit inventory
+        if: steps.install.outcome == 'success'
+        shell: bash
+        run: |
+          set +e
+          npm audit --json > b0-audit-full.json
+          code=$?
+          echo "exit=$code" > b0-audit-full-status.txt
+          exit 0
+
+      - name: Production audit inventory
+        if: steps.install.outcome == 'success'
+        shell: bash
+        run: |
+          set +e
+          npm audit --omit=dev --json > b0-audit-prod.json
+          code=$?
+          echo "exit=$code" > b0-audit-prod-status.txt
+          exit 0
+
+      - name: Current lint without mutation
+        id: lint
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          npm run lint > b0-lint.txt 2>&1
+          code=$?
+          echo "exit=$code" | tee b0-lint-status.txt
+          cat b0-lint.txt
+          exit "$code"
+
+      - name: Production build
+        id: build
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          npm run build > b0-build.txt 2>&1
+          code=$?
+          echo "exit=$code" | tee b0-build-status.txt
+          cat b0-build.txt
+          exit "$code"
+
+      - name: Dependency outdated inventory
+        if: steps.install.outcome == 'success'
+        shell: bash
+        run: |
+          set +e
+          npm outdated --json > b0-outdated.json 2> b0-outdated.stderr
+          code=$?
+          echo "exit=$code" > b0-outdated-status.txt
+          exit 0
+
+      - name: Top-level dependency tree
+        if: steps.install.outcome == 'success'
+        shell: bash
+        run: npm ls --depth=0 > b0-top-level.txt 2>&1 || true
+
+      - name: Summarize inventory
+        if: always()
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const read = (p) => fs.existsSync(p) ? fs.readFileSync(p, 'utf8').trim() : 'not-run';
+          const readAudit = (p) => {
+            if (!fs.existsSync(p)) return 'not-run';
+            try {
+              const x = JSON.parse(fs.readFileSync(p, 'utf8'));
+              return JSON.stringify(x.metadata?.vulnerabilities ?? {});
+            } catch {
+              return 'unparseable';
+            }
+          };
+          const summary = [
+            '# B0 inventory',
+            `- SHA: ${process.env.GITHUB_SHA}`,
+            `- runtime: ${read('b0-runtime.txt').replace(/\n/g, ', ')}`,
+            `- npm ci: ${read('b0-npm-ci-status.txt')}`,
+            `- lint: ${read('b0-lint-status.txt')}`,
+            `- build: ${read('b0-build-status.txt')}`,
+            `- full audit: ${readAudit('b0-audit-full.json')}`,
+            `- production audit: ${readAudit('b0-audit-prod.json')}`,
+            `- outdated: ${read('b0-outdated-status.txt')}`,
+          ].join('\n') + '\n';
+          fs.writeFileSync('b0-inventory-summary.md', summary);
+          console.log(summary);
+          NODE
+          cat b0-inventory-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload inventory evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: b0-inventory-node-${{ matrix.node }}-${{ github.sha }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            b0-*.txt
+            b0-*.json
+            b0-*.stderr
+            b0-inventory-summary.md
+
+  production-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact branch candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Setup Node 20 reproduction runtime
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 20.19.5
+          cache: npm
+
+      - name: Install and build
+        id: build
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          npm ci > b0-smoke-install.txt 2>&1
+          install_code=$?
+          echo "npm-ci-exit=$install_code" > b0-smoke-status.txt
+          if [ "$install_code" -ne 0 ]; then
+            cat b0-smoke-install.txt
+            exit "$install_code"
+          fi
+          npm run build > b0-smoke-build.txt 2>&1
+          build_code=$?
+          echo "build-exit=$build_code" >> b0-smoke-status.txt
+          cat b0-smoke-build.txt
+          exit "$build_code"
+
+      - name: Inspect built localization authority
+        if: steps.build.outcome == 'success'
+        shell: bash
+        run: |
+          set +e
+          if grep -R -F -q 'http://localhost:3000//locales/' .next; then
+            echo "hardcoded-localhost-i18n=true" | tee b0-i18n-build.txt
+          else
+            echo "hardcoded-localhost-i18n=false" | tee b0-i18n-build.txt
+          fi
+
+      - name: Normal production smoke
+        if: steps.build.outcome == 'success'
+        shell: bash
+        run: |
+          set +e
+          : > b0-normal-smoke.txt
+          npm start -- -p 3100 > b0-server-normal.log 2>&1 &
+          server_pid=$!
+          for i in $(seq 1 40); do
+            curl --silent --output /dev/null --max-time 2 http://127.0.0.1:3100/ && break
+            sleep 1
+          done
+
+          probe() {
+            path="$1"
+            tmp="$(mktemp)"
+            start="$(date +%s)"
+            code="$(curl --silent --show-error --location --max-time 25 --output "$tmp" --write-out '%{http_code}' "http://127.0.0.1:3100$path")"
+            curl_exit=$?
+            end="$(date +%s)"
+            bytes="$(wc -c < "$tmp" | tr -d ' ')"
+            echo "$path http=$code curl_exit=$curl_exit seconds=$((end-start)) bytes=$bytes" | tee -a b0-normal-smoke.txt
+            rm -f "$tmp"
+          }
+
+          probe /
+          probe /characters
+          probe /films
+          probe /characters/1
+          probe /films/1
+          probe /es
+          probe /es/characters
+          probe /en/films
+          probe /locales/en/translation.json
+          probe /locales/es/translation.json
+          probe /images/generic/img_generic_character.jpeg
+
+          curl --silent --show-error --max-time 20 --output b0-swapi-person.json --write-out 'swapi-http=%{http_code}\n' https://swapi.dev/api/people/1/ | tee b0-swapi-status.txt
+          kill "$server_pid" 2>/dev/null || true
+          wait "$server_pid" 2>/dev/null || true
+          exit 0
+
+      - name: SWAPI unavailable behavior
+        if: steps.build.outcome == 'success'
+        shell: bash
+        run: |
+          set +e
+          echo '127.0.0.1 swapi.dev' | sudo tee -a /etc/hosts >/dev/null
+          npm start -- -p 3101 > b0-server-unavailable.log 2>&1 &
+          server_pid=$!
+          for i in $(seq 1 40); do
+            curl --silent --output /dev/null --max-time 2 http://127.0.0.1:3101/ && break
+            sleep 1
+          done
+          : > b0-unavailable-smoke.txt
+          for path in /characters /films /characters/1 /films/1; do
+            start="$(date +%s)"
+            code="$(curl --silent --show-error --max-time 12 --output /tmp/b0-body --write-out '%{http_code}' "http://127.0.0.1:3101$path")"
+            curl_exit=$?
+            end="$(date +%s)"
+            echo "$path http=$code curl_exit=$curl_exit seconds=$((end-start))" | tee -a b0-unavailable-smoke.txt
+          done
+          kill "$server_pid" 2>/dev/null || true
+          wait "$server_pid" 2>/dev/null || true
+          exit 0
+
+      - name: Slow/non-responsive SWAPI behavior
+        if: steps.build.outcome == 'success'
+        shell: bash
+        run: |
+          set +e
+          sudo sed -i '/swapi.dev/d' /etc/hosts
+          echo '10.255.255.1 swapi.dev' | sudo tee -a /etc/hosts >/dev/null
+          npm start -- -p 3102 > b0-server-slow.log 2>&1 &
+          server_pid=$!
+          for i in $(seq 1 40); do
+            curl --silent --output /dev/null --max-time 2 http://127.0.0.1:3102/ && break
+            sleep 1
+          done
+          : > b0-slow-smoke.txt
+          for path in /characters /films; do
+            start="$(date +%s)"
+            code="$(curl --silent --show-error --max-time 8 --output /tmp/b0-slow-body --write-out '%{http_code}' "http://127.0.0.1:3102$path")"
+            curl_exit=$?
+            end="$(date +%s)"
+            echo "$path http=$code curl_exit=$curl_exit seconds=$((end-start))" | tee -a b0-slow-smoke.txt
+          done
+          kill "$server_pid" 2>/dev/null || true
+          wait "$server_pid" 2>/dev/null || true
+          exit 0
+
+      - name: Summarize production smoke
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "# B0 production smoke"
+            echo "- SHA: ${GITHUB_SHA}"
+            echo "- node: $(node --version)"
+            echo "- npm: $(npm --version)"
+            echo "- build step: ${{ steps.build.outcome }}"
+            [ -f b0-i18n-build.txt ] && sed 's/^/- /' b0-i18n-build.txt
+            echo
+            echo "## Normal"
+            [ -f b0-normal-smoke.txt ] && cat b0-normal-smoke.txt || echo "not-run"
+            echo
+            echo "## SWAPI unavailable"
+            [ -f b0-unavailable-smoke.txt ] && cat b0-unavailable-smoke.txt || echo "not-run"
+            echo
+            echo "## SWAPI slow/non-responsive"
+            [ -f b0-slow-smoke.txt ] && cat b0-slow-smoke.txt || echo "not-run"
+          } | tee b0-smoke-summary.md
+          cat b0-smoke-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload smoke evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: b0-production-smoke-${{ github.sha }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            b0-*.txt
+            b0-*.log
+            b0-*.json
+            b0-smoke-summary.md
