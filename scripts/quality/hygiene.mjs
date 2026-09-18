@@ -77,6 +77,28 @@ expect(
   'maintained i18n runtime must not depend on HTTP translation loading',
 );
 
+expect(
+  fs.existsSync('src/lib/swapi.mjs'),
+  'B3 requires one maintained SWAPI client boundary',
+);
+
+for (const pagePath of [
+  'src/pages/characters/index.js',
+  'src/pages/characters/[id].js',
+  'src/pages/films/index.js',
+  'src/pages/films/[id].js',
+]) {
+  const source = read(pagePath);
+  expect(
+    !source.includes('swapi.dev'),
+    `${pagePath} must not hardcode the SWAPI origin`,
+  );
+  expect(
+    !/\\bfetch\\s*\\(/.test(source),
+    `${pagePath} must use the maintained SWAPI client instead of direct fetch`,
+  );
+}
+
 if (failures.length) {
   console.error('B1 hygiene contract failed:');
   for (const failure of failures) console.error(`- ${failure}`);
@@ -85,3 +107,4 @@ if (failures.length) {
 
 console.log('B1 hygiene contract passed.');
 console.log('B2 config/i18n hygiene contract passed.');
+console.log('B3 SWAPI boundary hygiene contract passed.');

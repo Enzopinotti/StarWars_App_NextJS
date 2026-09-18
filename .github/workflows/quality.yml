@@ -56,6 +56,14 @@ jobs:
         id: b2
         run: npm run test:b2:runtime
 
+      - name: B3 deterministic SWAPI client contract
+        id: b3_client
+        run: npm run test:b3:swapi
+
+      - name: B3 production SWAPI route contract
+        id: b3_runtime
+        run: npm run test:b3:runtime
+
       - name: Production audit debt inventory
         id: audit
         if: always()
@@ -67,23 +75,25 @@ jobs:
         shell: bash
         run: |
           {
-            echo "# B1 quality evidence"
+            echo "# Quality evidence"
             echo "- SHA: $GITHUB_SHA"
             echo "- Node: $(node --version 2>/dev/null || echo unavailable)"
             echo "- npm: $(npm --version 2>/dev/null || echo unavailable)"
             echo "- quality: ${{ steps.quality.outcome }}"
             echo "- B2 runtime/i18n: ${{ steps.b2.outcome }}"
+            echo "- B3 SWAPI client: ${{ steps.b3_client.outcome }}"
+            echo "- B3 SWAPI runtime: ${{ steps.b3_runtime.outcome }}"
             echo "- production audit debt: ${{ steps.audit.outcome }}"
             echo "- lint ceiling: 0 errors / 17 warnings"
             echo "- format ceiling: 34 files"
-          } | tee b1-quality-summary.md
-          cat b1-quality-summary.md >> "$GITHUB_STEP_SUMMARY"
+          } | tee quality-summary.md
+          cat quality-summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload B1 quality evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: b1-quality-${{ github.sha }}
+          name: quality-${{ github.sha }}
           retention-days: 30
           if-no-files-found: error
-          path: b1-quality-summary.md
+          path: quality-summary.md
