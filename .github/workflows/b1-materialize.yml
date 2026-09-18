@@ -341,3 +341,17 @@ jobs:
             scripts/quality/lint-baseline.mjs
             scripts/quality/format-baseline.mjs
             .github/workflows/quality.yml
+
+      - name: Commit validated non-workflow B1 contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/quality.yml
+          git diff --check
+          git config user.name "Enzo Pinotti"
+          git config user.email "enzopinottii@gmail.com"
+          git add package.json package-lock.json .nvmrc .npmrc scripts/quality
+          git commit -m "B1: establish reproducible read-only quality toolchain"
+          git fetch origin modernize/2026-next-quality
+          git rebase origin/modernize/2026-next-quality
+          git push origin HEAD:modernize/2026-next-quality
