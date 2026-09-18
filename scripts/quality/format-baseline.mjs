@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 
-const MAX_DIFFERENT_FILES = 35;
+const MAX_DIFFERENT_FILES = 34;
 
 const args = [
   '--no-install',

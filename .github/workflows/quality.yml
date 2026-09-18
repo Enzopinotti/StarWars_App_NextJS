@@ -75,7 +75,7 @@ jobs:
             echo "- B2 runtime/i18n: ${{ steps.b2.outcome }}"
             echo "- production audit debt: ${{ steps.audit.outcome }}"
             echo "- lint ceiling: 0 errors / 17 warnings"
-            echo "- format ceiling: 35 files"
+            echo "- format ceiling: 34 files"
           } | tee b1-quality-summary.md
           cat b1-quality-summary.md >> "$GITHUB_STEP_SUMMARY"
 
