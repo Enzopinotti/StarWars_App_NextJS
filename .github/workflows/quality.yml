@@ -104,7 +104,7 @@ jobs:
             echo "- B5 accessibility/semantics: ${{ steps.b5_semantics.outcome }}"
             echo "- B5 accessibility/responsive runtime: ${{ steps.b5_runtime.outcome }}"
             echo "- production audit debt: ${{ steps.audit.outcome }}"
-            echo "- lint ceiling: 0 errors / 15 warnings"
+            echo "- lint ceiling: 0 errors / 13 warnings"
             echo "- format ceiling: 34 files"
           } | tee quality-summary.md
           cat quality-summary.md >> "$GITHUB_STEP_SUMMARY"
