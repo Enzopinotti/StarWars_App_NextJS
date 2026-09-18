@@ -240,7 +240,7 @@ jobs:
             contents: read
 
           concurrency:
-            group: quality-${{ github.workflow }}-${{ github.ref }}
+            group: quality-by-ref
             cancel-in-progress: true
 
           jobs:
@@ -271,33 +271,27 @@ jobs:
                 - name: Install from lockfile
                   run: npm ci
                 - name: Blocking read-only quality contract
-                  id: quality
                   run: npm run quality
                 - name: Production audit debt inventory
-                  id: audit
-                  if: always()
                   continue-on-error: true
                   run: npm audit --omit=dev --audit-level=high
                 - name: Write quality summary
-                  if: always()
                   shell: bash
                   run: |
                     {
                       echo "# B1 quality evidence"
-                      echo "- SHA: ${GITHUB_SHA}"
-                      echo "- Node: $(node --version 2>/dev/null || echo unavailable)"
-                      echo "- npm: $(npm --version 2>/dev/null || echo unavailable)"
-                      echo "- quality: ${{ steps.quality.outcome }}"
-                      echo "- production audit debt: ${{ steps.audit.outcome }}"
+                      echo "- SHA: $GITHUB_SHA"
+                      echo "- Node: $(node --version)"
+                      echo "- npm: $(npm --version)"
                       echo "- lint ceiling: 0 errors / 17 warnings"
                       echo "- format ceiling: 35 files"
+                      echo "- production audit remains debt inventory from B0"
                     } | tee b1-quality-summary.md
                     cat b1-quality-summary.md >> "$GITHUB_STEP_SUMMARY"
                 - name: Upload B1 quality evidence
-                  if: always()
                   uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
                   with:
-                    name: b1-quality-${{ github.sha }}
+                    name: b1-quality-evidence
                     retention-days: 30
                     if-no-files-found: error
                     path: b1-quality-summary.md
@@ -309,8 +303,14 @@ jobs:
           rm -rf node_modules
           npm ci
 
-      - name: Validate B1 quality
-        run: npm run quality
+      - name: Validate B1 quality components
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run quality:hygiene
+          npm run quality:lint-baseline
+          npm run quality:format-baseline
+          npm run build
 
       - name: Verify direct commands remain non-mutating
         shell: bash
