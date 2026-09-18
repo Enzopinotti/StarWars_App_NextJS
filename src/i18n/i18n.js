@@ -1,24 +1,31 @@
-import i18n from 'i18next';
+import { createInstance } from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import Backend from 'i18next-http-backend';
-import LanguageDetector from 'i18next-browser-languagedetector';
+import enTranslation from '../../public/locales/en/translation.json';
+import esTranslation from '../../public/locales/es/translation.json';
 
-i18n
-  .use(Backend)
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
+const resources = {
+  en: { translation: enTranslation },
+  es: { translation: esTranslation },
+};
+
+export function createI18n(locale = 'en') {
+  const language = locale === 'es' ? 'es' : 'en';
+  const instance = createInstance();
+
+  instance.use(initReactI18next).init({
+    resources,
+    lng: language,
     fallbackLng: 'en',
-    debug: true,
-    backend: {
-      loadPath: 'http://localhost:3000//locales/{{lng}}/{{ns}}.json',
-    },
+    supportedLngs: ['en', 'es'],
+    debug: false,
+    initImmediate: false,
     interpolation: {
-      escapeValue: false,  
+      escapeValue: false,
     },
     react: {
-        useSuspense: false, // Desactivar Suspense para traducciones
+      useSuspense: false,
     },
   });
 
-export default i18n;
+  return instance;
+}
