@@ -69,6 +69,15 @@ jobs:
           const audit = JSON.parse(fs.readFileSync('b6.1-audit.json', 'utf8'))
           const v = audit.metadata?.vulnerabilities ?? {}
           console.log('production-audit=info:' + (v.info ?? 0) + ',low:' + (v.low ?? 0) + ',moderate:' + (v.moderate ?? 0) + ',high:' + (v.high ?? 0) + ',critical:' + (v.critical ?? 0) + ',total:' + (v.total ?? 0))
+          for (const [name, finding] of Object.entries(audit.vulnerabilities ?? {})) {
+            console.log(
+              'audit-finding=' + name +
+              '|severity=' + finding.severity +
+              '|direct=' + Boolean(finding.isDirect) +
+              '|via=' + JSON.stringify(finding.via) +
+              '|fix=' + JSON.stringify(finding.fixAvailable),
+            )
+          }
           NODE
 
       - name: Push validated generated lockfile
