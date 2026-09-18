@@ -94,7 +94,7 @@ jobs:
             echo "- B4 route/data unit: ${{ steps.b4_data.outcome }}"
             echo "- B4 route/data runtime: ${{ steps.b4_runtime.outcome }}"
             echo "- production audit debt: ${{ steps.audit.outcome }}"
-            echo "- lint ceiling: 0 errors / 16 warnings"
+            echo "- lint ceiling: 0 errors / 15 warnings"
             echo "- format ceiling: 34 files"
           } | tee quality-summary.md
           cat quality-summary.md >> "$GITHUB_STEP_SUMMARY"
