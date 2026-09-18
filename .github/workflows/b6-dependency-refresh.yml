@@ -29,7 +29,7 @@ jobs:
         run: npm install --package-lock-only --ignore-scripts
 
       - name: Apply non-breaking audit lockfile fixes
-        run: npm audit fix --package-lock-only --ignore-scripts
+        run: npm audit fix --package-lock-only --ignore-scripts || true
 
       - name: Stage generated lockfile locally
         shell: bash
@@ -63,23 +63,26 @@ jobs:
           npm run test:b5:semantics
           npm run test:b5:runtime
 
-      - name: Record production audit after refresh
+      - name: Record audit after refresh
         shell: bash
         run: |
-          npm audit --omit=dev --json > b6.1-audit.json || true
+          npm audit --omit=dev --json > b6-prod-audit.json || true
+          npm audit --json > b6-full-audit.json || true
           node - <<'NODE'
           const fs = require('fs')
-          const audit = JSON.parse(fs.readFileSync('b6.1-audit.json', 'utf8'))
-          const v = audit.metadata?.vulnerabilities ?? {}
-          console.log('production-audit=info:' + (v.info ?? 0) + ',low:' + (v.low ?? 0) + ',moderate:' + (v.moderate ?? 0) + ',high:' + (v.high ?? 0) + ',critical:' + (v.critical ?? 0) + ',total:' + (v.total ?? 0))
-          for (const [name, finding] of Object.entries(audit.vulnerabilities ?? {})) {
-            console.log(
-              'audit-finding=' + name +
-              '|severity=' + finding.severity +
-              '|direct=' + Boolean(finding.isDirect) +
-              '|via=' + JSON.stringify(finding.via) +
-              '|fix=' + JSON.stringify(finding.fixAvailable),
-            )
+          for (const [label, file] of [['production', 'b6-prod-audit.json'], ['full', 'b6-full-audit.json']]) {
+            const audit = JSON.parse(fs.readFileSync(file, 'utf8'))
+            const v = audit.metadata?.vulnerabilities ?? {}
+            console.log(label + '-audit=info:' + (v.info ?? 0) + ',low:' + (v.low ?? 0) + ',moderate:' + (v.moderate ?? 0) + ',high:' + (v.high ?? 0) + ',critical:' + (v.critical ?? 0) + ',total:' + (v.total ?? 0))
+            for (const [name, finding] of Object.entries(audit.vulnerabilities ?? {})) {
+              console.log(
+                label + '-audit-finding=' + name +
+                '|severity=' + finding.severity +
+                '|direct=' + Boolean(finding.isDirect) +
+                '|via=' + JSON.stringify(finding.via) +
+                '|fix=' + JSON.stringify(finding.fixAvailable),
+              )
+            }
           }
           NODE
 
