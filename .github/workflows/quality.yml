@@ -52,6 +52,10 @@ jobs:
         id: quality
         run: npm run quality
 
+      - name: B2 production runtime and i18n contract
+        id: b2
+        run: npm run test:b2:runtime
+
       - name: Production audit debt inventory
         id: audit
         if: always()
@@ -68,6 +72,7 @@ jobs:
             echo "- Node: $(node --version 2>/dev/null || echo unavailable)"
             echo "- npm: $(npm --version 2>/dev/null || echo unavailable)"
             echo "- quality: ${{ steps.quality.outcome }}"
+            echo "- B2 runtime/i18n: ${{ steps.b2.outcome }}"
             echo "- production audit debt: ${{ steps.audit.outcome }}"
             echo "- lint ceiling: 0 errors / 17 warnings"
             echo "- format ceiling: 35 files"

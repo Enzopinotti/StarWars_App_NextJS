@@ -58,12 +58,23 @@ for (const forbiddenPrefix of ['.next/', 'node_modules/', 'out/', 'coverage/']) 
 expect(fs.existsSync('package-lock.json'), 'npm package-lock.json must remain present');
 expect(fs.existsSync('.eslintrc.json'), 'ESLint config must remain explicit');
 
-const postcssConfigs = ['postcss.config.js', 'postcss.config.mjs'].filter((p) =>
-  fs.existsSync(p),
+expect(
+  fs.existsSync('postcss.config.js'),
+  'postcss.config.js must remain the maintained PostCSS authority',
 );
 expect(
-  postcssConfigs.length === 2,
-  'B1 expects the two historical PostCSS configs to remain visible until B2 selects authority',
+  !fs.existsSync('postcss.config.mjs'),
+  'duplicate postcss.config.mjs must stay removed after B2 authority selection',
+);
+
+const i18nSource = read('src/i18n/i18n.js');
+expect(
+  !i18nSource.includes('localhost:3000'),
+  'maintained i18n source must not hardcode localhost:3000',
+);
+expect(
+  !i18nSource.includes('i18next-http-backend'),
+  'maintained i18n runtime must not depend on HTTP translation loading',
 );
 
 if (failures.length) {
@@ -73,4 +84,4 @@ if (failures.length) {
 }
 
 console.log('B1 hygiene contract passed.');
-console.log('Known B2 config debt: postcss.config.js + postcss.config.mjs both present.');
+console.log('B2 config/i18n hygiene contract passed.');
