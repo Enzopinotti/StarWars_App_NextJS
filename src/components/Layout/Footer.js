@@ -1,25 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import SocialMedia from '../SocialMedia'; 
+import SocialMedia from '../SocialMedia';
+
 const Footer = () => {
-  const { t, i18n } = useTranslation();
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    const handleLoaded = () => {
-      setReady(true);
-    };
-    i18n.on('loaded', handleLoaded);
-    i18n.loadNamespaces('translation', handleLoaded);
-
-    return () => {
-      i18n.off('loaded', handleLoaded);
-    };
-  }, [i18n]);
-
-  if (!ready) {
-    return <p>Loading translations...</p>;
-  }
+  const { t } = useTranslation();
 
   return (
     <footer className="bg-black text-white text-center py-8">

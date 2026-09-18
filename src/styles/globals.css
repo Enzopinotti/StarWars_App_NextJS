@@ -113,3 +113,53 @@ p, h1, h2, h3, h4, h5, h6 {
     text-shadow: 0 0 8px #fff; 
 }
 
+
+
+/* B5 responsive header: CSS owns the breakpoint so SSR and the first client render share markup. */
+.header-responsive {
+    background-image: url('/images/header_border.png');
+    background-position: center;
+    background-size: cover;
+}
+
+.header-responsive-open {
+    position: relative;
+    background-image: none;
+}
+
+.header-responsive-open::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        #0d121c 0%,
+        #1d2129 61%,
+        #2d3037 80%,
+        #606060 100%
+    );
+    opacity: 0.7;
+    z-index: -1;
+}
+
+@media (min-width: 1024px) {
+    .header-responsive {
+        position: relative;
+        background-image: none;
+    }
+
+    .header-responsive::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            to bottom,
+            #0d121c 0%,
+            #1d2129 61%,
+            #2d3037 80%,
+            #606060 100%
+        );
+        opacity: 0.7;
+        z-index: -1;
+    }
+}

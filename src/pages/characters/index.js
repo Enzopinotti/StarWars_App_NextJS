@@ -1,118 +1,151 @@
-import React, { Suspense, useCallback, useEffect, useState } from 'react';
-import { CharacterListContainer, CharacterFilter } from '../../components/LazyComponents';
-import FilterIcon from '../../components/FilterIcon';
+import React, { Suspense, useState } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
 import BubbleFilter from '@/components/BubbleFilter';
-import { normalizeString } from '../../utils';
-import fetch from 'node-fetch';
-
-async function fetchPageData(page) {
-  const response = await fetch(`https://swapi.dev/api/people/?page=${page}`);
-  if (!response.ok) {
-    throw new Error('Network response was not ok');
-  }
-  return await response.json();
-}
+import { CharacterListContainer, CharacterFilter } from '../../components/LazyComponents';
+import FilterIcon from '../../components/FilterIcon';
+import { buildCharacterPageModel, normalizeFacet } from '../../lib/character-query.mjs';
+import { getAllPeople } from '../../lib/swapi.mjs';
 
 export async function getServerSideProps(context) {
-  const data = await fetchPageData(1);
-  return {
-    props: {
-      initialCharacters: data.results,
-      totalCount: data.count,
-      currentPage: 1,
-      hasNextPage: Boolean(data.next),
-      hasPreviousPage: false,
-    },
-  };
+  try {
+    const characters = await getAllPeople();
+    const pageModel = buildCharacterPageModel(characters, context.query);
+
+    return {
+      props: {
+        ...pageModel,
+        upstreamError: false,
+      },
+    };
+  } catch {
+    context.res.statusCode = 503;
+
+    return {
+      props: {
+        characters: [],
+        totalCount: 0,
+        currentPage: 1,
+        pageSize: 10,
+        eyeColors: [],
+        genders: [],
+        eyeColorFilter: '',
+        genderFilter: '',
+        upstreamError: true,
+      },
+    };
+  }
 }
 
-const CharactersPage = ({ initialCharacters, totalCount, currentPage: initialPage, hasNextPage, hasPreviousPage }) => {
+const CharactersPage = ({
+  characters,
+  totalCount,
+  currentPage,
+  pageSize,
+  eyeColors,
+  genders,
+  eyeColorFilter,
+  genderFilter,
+  upstreamError,
+}) => {
   const { t } = useTranslation();
-  const [currentCharacters, setCurrentCharacters] = useState(initialCharacters);
-  const [eyeColors, setEyeColors] = useState(new Set(initialCharacters.map(char => char.eye_color)));
-  const [genders, setGenders] = useState(new Set(initialCharacters.map(char => char.gender)));
+  const router = useRouter();
   const [showFilters, setShowFilters] = useState(false);
-  const [eyeColorFilter, setEyeColorFilter] = useState('');
-  const [genderFilter, setGenderFilter] = useState('');
-  const [currentPage, setCurrentPage] = useState(initialPage);
 
+  const pushCharacterQuery = (changes) => {
+    const query = { ...router.query, ...changes };
 
-
-  const fetchAdditionalData = useCallback(async () => {
-    if (!hasNextPage || currentPage !== 1) return;
-    let nextPageIndex = 2;
-    let morePagesAvailable = hasNextPage;
-    while (morePagesAvailable) {
-      const data = await fetchPageData(nextPageIndex);
-      setCurrentCharacters(prevChars => [...prevChars, ...data.results]);
-      setEyeColors(prevColors => new Set([...Array.from(prevColors), ...data.results.map(char => char.eye_color)]));
-      setGenders(prevGenders => new Set([...Array.from(prevGenders), ...data.results.map(char => char.gender)]));
-      morePagesAvailable = Boolean(data.next);
-      nextPageIndex += 1;
+    for (const [key, value] of Object.entries(query)) {
+      if (value === '' || value == null) delete query[key];
     }
-  }, [hasNextPage]);
 
-  useEffect(() => {
-    fetchAdditionalData();
-  }, [initialPage, fetchAdditionalData]);
+    void router.push(
+      {
+        pathname: router.pathname,
+        query,
+      },
+      undefined,
+      { scroll: false },
+    );
+  };
 
   const handleFilterChange = (type, value) => {
-    const normalizedValue = normalizeString(value);
+    const normalizedValue = normalizeFacet(value);
+
     if (type === 'eyeColor') {
-      setEyeColorFilter(normalizedValue);
+      pushCharacterQuery({ eyeColor: normalizedValue, page: '1' });
     } else if (type === 'gender') {
-      setGenderFilter(normalizedValue);
+      pushCharacterQuery({ gender: normalizedValue, page: '1' });
     }
   };
 
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-  };
-
-  const clearFilter = type => {
+  const clearFilter = (type) => {
     if (type === 'eyeColor') {
-      setEyeColorFilter('');
+      pushCharacterQuery({ eyeColor: '', page: '1' });
     } else if (type === 'gender') {
-      setGenderFilter('');
+      pushCharacterQuery({ gender: '', page: '1' });
     }
   };
 
-  const toggleFilters = () => setShowFilters(!showFilters);
+  const handlePageChange = (page) => {
+    if (Number.isInteger(page) && page > 0) {
+      pushCharacterQuery({ page: String(page) });
+    }
+  };
+
+  if (upstreamError) {
+    return (
+      <>
+        <Head>
+          <title>Characters | Star Wars</title>
+        </Head>
+        <div className="h-screen flex justify-center items-center">
+          <p className="text-white font-orbitron">{t('dataSourceError')}</p>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
       <Head>
         <title>Characters | Star Wars</title>
       </Head>
-      <FilterIcon onClick={toggleFilters} />
-      {showFilters && (
-        <Suspense fallback={<div>Loading filters...</div>}>
+      <FilterIcon
+        isOpen={showFilters}
+        onClick={() => setShowFilters((previous) => !previous)}
+      />
+      <div id="character-filters" hidden={!showFilters}>
+        <Suspense fallback={<div>{t('loadingFilters')}</div>}>
           <CharacterFilter
-            eyeColorFilter={eyeColorFilter}
-            genderFilter={genderFilter}
-            eyeColors={Array.from(eyeColors)}
-            genders={Array.from(genders)}
+            eyeColors={eyeColors}
+            genders={genders}
             onFilterChange={handleFilterChange}
           />
         </Suspense>
-      )}
-      <div className="flex space-x-4 p-4">
-        {eyeColorFilter && <BubbleFilter label={t(`eye_color_${eyeColorFilter}`)} onRemove={() => clearFilter('eyeColor')} />}
-        {genderFilter && <BubbleFilter label={t(`gender_${genderFilter}`)} onRemove={() => clearFilter('gender')} />}
       </div>
-      <Suspense fallback={<div>Loading...</div>}>
+      <div className="flex space-x-4 p-4">
+        {eyeColorFilter && (
+          <BubbleFilter
+            label={t(`eye_color_${eyeColorFilter}`)}
+            onRemove={() => clearFilter('eyeColor')}
+          />
+        )}
+        {genderFilter && (
+          <BubbleFilter
+            label={t(`gender_${genderFilter}`)}
+            onRemove={() => clearFilter('gender')}
+          />
+        )}
+      </div>
+      <Suspense fallback={<div>{t('loading')}</div>}>
         <CharacterListContainer
-          characters={currentCharacters}
+          characters={characters}
           totalCount={totalCount}
           currentPage={currentPage}
-          hasNextPage={hasNextPage}
-          hasPreviousPage={hasPreviousPage}
-          eyeColorFilter={eyeColorFilter}
-          genderFilter={genderFilter}
+          pageSize={pageSize}
           onPageChange={handlePageChange}
-          setCurrentPage={setCurrentPage}
         />
       </Suspense>
     </>
