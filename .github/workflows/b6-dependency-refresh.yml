@@ -28,6 +28,9 @@ jobs:
       - name: Refresh lockfile within declared ranges
         run: npm install --package-lock-only --ignore-scripts
 
+      - name: Apply non-breaking audit lockfile fixes
+        run: npm audit fix --package-lock-only --ignore-scripts
+
       - name: Stage generated lockfile locally
         shell: bash
         run: |
