@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process';
 
 const MAX_ERRORS = 0;
-const MAX_WARNINGS = 17;
+const MAX_WARNINGS = 16;
 
 const result = spawnSync(
   process.platform === 'win32' ? 'npx.cmd' : 'npx',

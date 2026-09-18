@@ -84,7 +84,7 @@ jobs:
             echo "- B3 SWAPI client: ${{ steps.b3_client.outcome }}"
             echo "- B3 SWAPI runtime: ${{ steps.b3_runtime.outcome }}"
             echo "- production audit debt: ${{ steps.audit.outcome }}"
-            echo "- lint ceiling: 0 errors / 17 warnings"
+            echo "- lint ceiling: 0 errors / 16 warnings"
             echo "- format ceiling: 34 files"
           } | tee quality-summary.md
           cat quality-summary.md >> "$GITHUB_STEP_SUMMARY"
