@@ -1,85 +1,73 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
-import BotonTransparente from './ButtonTransparent';
 import carouselData from '../../public/json/carouselData.json';
 
 const Carousel = () => {
   const { t } = useTranslation();
-  const [scrollX, setScrollX] = useState(0);
-  const [imageWidth, setImageWidth] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  useEffect(() => {
-    const updateWidth = () => {
-      setImageWidth(window.innerWidth);
-    };
-
-    window.addEventListener('resize', updateWidth);
-    updateWidth();
-
-    return () => {
-      window.removeEventListener('resize', updateWidth);
-    };
-  }, []);
-
-  const handleLeftClick = () => {
-    let x = scrollX + imageWidth;
-    if (x > 0) {
-      x = 0;
-    }
-    setScrollX(x);
+  const goPrevious = () => {
+    setActiveIndex((previous) => Math.max(0, previous - 1));
   };
 
-  const handleRightClick = () => {
-    let x = scrollX - imageWidth;
-    const maxScroll = -imageWidth * (carouselData.length - 1);
-    if (x < maxScroll) {
-      x = maxScroll;
-    }
-    setScrollX(x);
+  const goNext = () => {
+    setActiveIndex((previous) => Math.min(carouselData.length - 1, previous + 1));
   };
 
   return (
-    <div className="relative overflow-hidden w-full flex items-center">
+    <section
+      role="region"
+      aria-roledescription="carousel"
+      aria-label={t('carouselLabel')}
+      className="relative overflow-hidden w-full flex items-center"
+    >
       <button
-        onClick={handleLeftClick}
-        className="absolute left-0 z-10 text-white text-4xl p-4 focus:outline-none"
+        type="button"
+        onClick={goPrevious}
+        disabled={activeIndex === 0}
+        aria-label={t('previousSlide')}
+        className="absolute left-0 z-10 text-white text-4xl p-4 disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-mikado-yellow"
       >
         &lt;
       </button>
       <div
-        className="flex transition-transform duration-500 ease-in-out"
-        style={{ transform: `translateX(${scrollX}px)` }}
+        className="flex w-full transition-transform duration-500 ease-in-out"
+        style={{ transform: `translateX(-${activeIndex * 100}%)` }}
       >
         {carouselData.map((image, index) => (
           <div
-            key={index}
-            style={{ width: imageWidth, height: '700px', position: 'relative' }}
+            key={image.src}
+            aria-hidden={index !== activeIndex}
+            className="relative min-w-full h-[500px] md:h-[700px]"
           >
             <img
               src={image.src}
-              alt={`Carousel Background ${index}`}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              alt={t('carouselSlide', { number: index + 1 })}
+              className="w-full h-full object-cover"
             />
-            <div className="absolute top-16 left-32 flex flex-col text-white text-xl font-robotoMono font-bold text-center">
+            <div className="absolute top-16 left-8 md:left-32 flex flex-col text-white text-xl font-robotoMono font-bold text-center">
               {image.elements.map((element, elementIndex) => {
+                const elementKey = `${image.src}-${element.type}-${elementIndex}`;
                 if (element.type === 'text') {
                   return (
-                    <em
-                      key={elementIndex}
-                      className={`my-2 ${element.class}`}
-                    >
+                    <em key={elementKey} className={`my-2 ${element.class ?? ''}`}>
                       {t(element.content)}
                     </em>
                   );
                 }
                 if (element.type === 'divider') {
-                  return <hr key={elementIndex} />;
+                  return <hr key={elementKey} />;
                 }
                 if (element.type === 'link') {
                   return (
-                    <Link key={elementIndex} href={element.href}>
-                      <BotonTransparente texto={t(element.content)} />
+                    <Link
+                      key={elementKey}
+                      href={element.href}
+                      tabIndex={index === activeIndex ? 0 : -1}
+                      className="text-mikado-yellow hover:text-white transition duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-mikado-yellow"
+                    >
+                      {t(element.content)}
                     </Link>
                   );
                 }
@@ -90,12 +78,15 @@ const Carousel = () => {
         ))}
       </div>
       <button
-        onClick={handleRightClick}
-        className="absolute right-0 z-10 text-white text-4xl p-4 focus:outline-none"
+        type="button"
+        onClick={goNext}
+        disabled={activeIndex === carouselData.length - 1}
+        aria-label={t('nextSlide')}
+        className="absolute right-0 z-10 text-white text-4xl p-4 disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-mikado-yellow"
       >
         &gt;
       </button>
-    </div>
+    </section>
   );
 };
 

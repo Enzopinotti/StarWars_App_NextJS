@@ -29,58 +29,47 @@ const CharacterFilter = ({ onFilterChange, eyeColors, genders }) => {
     );
   }
 
+  const renderOptions = (items, type, close) => (
+    <ul className="py-1">
+      {items.length > 0 ? (
+        items.map(({ key, label }) => (
+          <li key={key}>
+            <button
+              type="button"
+              className="w-full text-left px-4 py-2 text-white hover:bg-gray-600 focus-visible:bg-gray-600 focus-visible:outline-none"
+              onClick={() => {
+                onFilterChange(type, key);
+                close(false);
+              }}
+            >
+              {label}
+            </button>
+          </li>
+        ))
+      ) : (
+        <li className="px-4 py-2 text-white">{t('noFilterOptions')}</li>
+      )}
+    </ul>
+  );
+
   return (
     <div className="flex justify-around p-4 navbar-gradient rounded-lg shadow">
       <ButtonFilter
-        icon="vision"
+        iconSrc="/images/icons/Vision.png"
         label={t('eyeColor')}
         isOpen={isOpenEyeColor}
-        toggleDropdown={() => setIsOpenEyeColor(!isOpenEyeColor)}
+        toggleDropdown={() => setIsOpenEyeColor((previous) => !previous)}
       >
-        <ul className="py-1">
-          {translatedEyeColors.length > 0 ? (
-            translatedEyeColors.map(({ key, label }) => (
-              <li
-                key={key}
-                className="px-4 py-2 text-white hover:bg-gray-600 cursor-pointer"
-                onClick={() => {
-                  onFilterChange('eyeColor', key);
-                  setIsOpenEyeColor(false);
-                }}
-              >
-                {label}
-              </li>
-            ))
-          ) : (
-            <li className="px-4 py-2 text-white">Sin opciones</li>
-          )}
-        </ul>
+        {renderOptions(translatedEyeColors, 'eyeColor', setIsOpenEyeColor)}
       </ButtonFilter>
 
       <ButtonFilter
-        icon="gender"
+        iconSrc="/images/icons/gender.png"
         label={t('gender')}
         isOpen={isOpenGender}
-        toggleDropdown={() => setIsOpenGender(!isOpenGender)}
+        toggleDropdown={() => setIsOpenGender((previous) => !previous)}
       >
-        <ul className="py-1">
-          {translatedGenders.length > 0 ? (
-            translatedGenders.map(({ key, label }) => (
-              <li
-                key={key}
-                className="px-4 py-2 text-white hover:bg-gray-600 cursor-pointer"
-                onClick={() => {
-                  onFilterChange('gender', key);
-                  setIsOpenGender(false);
-                }}
-              >
-                {label}
-              </li>
-            ))
-          ) : (
-            <li className="px-4 py-2 text-white">Sin opciones</li>
-          )}
-        </ul>
+        {renderOptions(translatedGenders, 'gender', setIsOpenGender)}
       </ButtonFilter>
     </div>
   );

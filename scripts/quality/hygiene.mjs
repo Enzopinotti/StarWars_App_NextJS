@@ -124,6 +124,43 @@ expect(
   'B4 film detail must not own an unbounded Promise.all character fan-out',
 );
 
+
+const b5Sources = {
+  header: read('src/components/Layout/Header.js'),
+  navbar: read('src/components/NavBar.js'),
+  carousel: read('src/components/Carousel.js'),
+  filterIcon: read('src/components/FilterIcon.js'),
+  characterFilter: read('src/components/CharacterFilter.js'),
+};
+
+for (const [name, source] of Object.entries(b5Sources)) {
+  if (['header', 'navbar', 'carousel'].includes(name)) {
+    expect(
+      !source.includes('useWindowSize') && !source.includes('window.innerWidth'),
+      `B5 ${name} must not branch maintained markup on browser viewport reads`,
+    );
+  }
+}
+
+expect(
+  !/<Link[^>]*>\s*<button/s.test(b5Sources.navbar),
+  'B5 navigation links must not wrap buttons',
+);
+expect(
+  b5Sources.filterIcon.includes('<button') &&
+    b5Sources.filterIcon.includes('aria-controls="character-filters"'),
+  'B5 filter toggle must be a labelled native button controlling the filter region',
+);
+expect(
+  !/<li[^>]*onClick=/s.test(b5Sources.characterFilter),
+  'B5 filter options must not use clickable list items',
+);
+expect(
+  b5Sources.carousel.includes('aria-roledescription="carousel"') &&
+    !b5Sources.carousel.includes('ButtonTransparent'),
+  'B5 carousel must expose semantics and direct links without nested button controls',
+);
+
 if (failures.length) {
   console.error('B1 hygiene contract failed:');
   for (const failure of failures) console.error(`- ${failure}`);
@@ -134,3 +171,4 @@ console.log('B1 hygiene contract passed.');
 console.log('B2 config/i18n hygiene contract passed.');
 console.log('B3 SWAPI boundary hygiene contract passed.');
 console.log('B4 route/data hygiene contract passed.');
+console.log('B5 accessibility/responsive hygiene contract passed.');

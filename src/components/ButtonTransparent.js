@@ -1,13 +1,11 @@
-import React from 'react'
-import { useTranslation } from 'react-i18next';
+import React from 'react';
 
+const ButtonTransparent = ({ texto }) => {
+  return (
+    <span className="text-mikado-yellow hover:text-white transition duration-300">
+      {texto}
+    </span>
+  );
+};
 
-
-const ButtonTransparent = ({texto}) => {
-    const { t } = useTranslation();
-    return (
-        <button className="text-mikado-yellow hover:text-white transition duration-300">{t(`${texto}`)}</button>
-    )
-}
-
-export default ButtonTransparent
+export default ButtonTransparent;

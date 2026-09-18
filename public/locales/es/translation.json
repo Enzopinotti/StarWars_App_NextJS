@@ -93,5 +93,21 @@
   "dataSourceError": "Los datos de Star Wars no están disponibles temporalmente.",
   "additionalDataError": "No se pudieron cargar algunos datos adicionales de Star Wars.",
   "characterNotFound": "Personaje no encontrado.",
-  "filmNotFound": "Película no encontrada."
+  "filmNotFound": "Película no encontrada.",
+  "primaryNavigation": "Navegación principal",
+  "languageSelector": "Selector de idioma",
+  "openMenu": "Abrir menú de navegación",
+  "closeMenu": "Cerrar menú de navegación",
+  "showFilters": "Mostrar filtros de personajes",
+  "hideFilters": "Ocultar filtros de personajes",
+  "removeFilter": "Quitar filtro {{label}}",
+  "noFilterOptions": "Sin opciones de filtro",
+  "paginationLabel": "Paginación de personajes",
+  "previousPage": "Página anterior",
+  "nextPage": "Página siguiente",
+  "pageLabel": "Página {{page}}",
+  "carouselLabel": "Navegación destacada de Star Wars",
+  "previousSlide": "Diapositiva anterior",
+  "nextSlide": "Diapositiva siguiente",
+  "carouselSlide": "Diapositiva {{number}} del carrusel"
 }

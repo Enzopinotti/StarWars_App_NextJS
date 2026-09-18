@@ -72,6 +72,14 @@ jobs:
         id: b4_runtime
         run: npm run test:b4:runtime
 
+      - name: B5 deterministic accessibility/semantics contract
+        id: b5_semantics
+        run: npm run test:b5:semantics
+
+      - name: B5 production accessibility/responsive contract
+        id: b5_runtime
+        run: npm run test:b5:runtime
+
       - name: Production audit debt inventory
         id: audit
         if: always()
@@ -93,6 +101,8 @@ jobs:
             echo "- B3 SWAPI runtime: ${{ steps.b3_runtime.outcome }}"
             echo "- B4 route/data unit: ${{ steps.b4_data.outcome }}"
             echo "- B4 route/data runtime: ${{ steps.b4_runtime.outcome }}"
+            echo "- B5 accessibility/semantics: ${{ steps.b5_semantics.outcome }}"
+            echo "- B5 accessibility/responsive runtime: ${{ steps.b5_runtime.outcome }}"
             echo "- production audit debt: ${{ steps.audit.outcome }}"
             echo "- lint ceiling: 0 errors / 15 warnings"
             echo "- format ceiling: 34 files"

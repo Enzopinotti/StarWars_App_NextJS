@@ -95,5 +95,21 @@
   "dataSourceError": "Star Wars data is temporarily unavailable.",
   "additionalDataError": "Some additional Star Wars data could not be loaded.",
   "characterNotFound": "Character not found.",
-  "filmNotFound": "Film not found."
+  "filmNotFound": "Film not found.",
+  "primaryNavigation": "Primary navigation",
+  "languageSelector": "Language selector",
+  "openMenu": "Open navigation menu",
+  "closeMenu": "Close navigation menu",
+  "showFilters": "Show character filters",
+  "hideFilters": "Hide character filters",
+  "removeFilter": "Remove {{label}} filter",
+  "noFilterOptions": "No filter options",
+  "paginationLabel": "Character pagination",
+  "previousPage": "Previous page",
+  "nextPage": "Next page",
+  "pageLabel": "Page {{page}}",
+  "carouselLabel": "Featured Star Wars navigation",
+  "previousSlide": "Previous slide",
+  "nextSlide": "Next slide",
+  "carouselSlide": "Carousel slide {{number}}"
 }

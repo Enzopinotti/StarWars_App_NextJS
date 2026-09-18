@@ -112,8 +112,11 @@ const CharactersPage = ({
       <Head>
         <title>Characters | Star Wars</title>
       </Head>
-      <FilterIcon onClick={() => setShowFilters((previous) => !previous)} />
-      {showFilters && (
+      <FilterIcon
+        isOpen={showFilters}
+        onClick={() => setShowFilters((previous) => !previous)}
+      />
+      <div id="character-filters" hidden={!showFilters}>
         <Suspense fallback={<div>{t('loadingFilters')}</div>}>
           <CharacterFilter
             eyeColors={eyeColors}
@@ -121,7 +124,7 @@ const CharactersPage = ({
             onFilterChange={handleFilterChange}
           />
         </Suspense>
-      )}
+      </div>
       <div className="flex space-x-4 p-4">
         {eyeColorFilter && (
           <BubbleFilter
