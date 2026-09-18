@@ -191,9 +191,12 @@ try {
   const characterDetail = await request('/characters/1');
   const characterDetailBody = await characterDetail.text();
   assert(characterDetail.status === 200, 'character detail must return 200');
+  const characterTitle = characterDetailBody.match(
+    /<title[^>]*>([^<]*)<\/title>/i,
+  )?.[1];
   assert(
-    characterDetailBody.includes('<title>Character 01 | Star Wars</title>'),
-    'character detail must render a valid document title',
+    characterTitle === 'Character 01 | Star Wars',
+    `character detail must render a valid document title; got ${characterTitle ?? 'missing'}`,
   );
 
   detailRequests = 0;

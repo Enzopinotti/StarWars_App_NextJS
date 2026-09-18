@@ -14,7 +14,6 @@ const nextConfig = {
     defaultLocale: 'en',
     localeDetection: false,
   },
-  swcMinify: true,
 };
 
 export default nextConfig;

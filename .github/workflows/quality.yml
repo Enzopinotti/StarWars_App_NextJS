@@ -80,11 +80,17 @@ jobs:
         id: b5_runtime
         run: npm run test:b5:runtime
 
-      - name: Production audit debt inventory
-        id: audit
-        if: always()
-        continue-on-error: true
-        run: npm audit --omit=dev --audit-level=high
+      - name: B6 deterministic dependency/framework contract
+        id: b6_deps
+        run: npm run test:b6:deps
+
+      - name: B6 production dependency audit
+        id: b6_audit_prod
+        run: npm run audit:prod
+
+      - name: B6 complete dependency audit
+        id: b6_audit_all
+        run: npm run audit:all
 
       - name: Write quality evidence
         if: always()
@@ -103,7 +109,9 @@ jobs:
             echo "- B4 route/data runtime: ${{ steps.b4_runtime.outcome }}"
             echo "- B5 accessibility/semantics: ${{ steps.b5_semantics.outcome }}"
             echo "- B5 accessibility/responsive runtime: ${{ steps.b5_runtime.outcome }}"
-            echo "- production audit debt: ${{ steps.audit.outcome }}"
+            echo "- B6 dependency/framework contract: ${{ steps.b6_deps.outcome }}"
+            echo "- B6 production audit: ${{ steps.b6_audit_prod.outcome }}"
+            echo "- B6 complete audit: ${{ steps.b6_audit_all.outcome }}"
             echo "- lint ceiling: 0 errors / 13 warnings"
             echo "- format ceiling: 34 files"
           } | tee quality-summary.md

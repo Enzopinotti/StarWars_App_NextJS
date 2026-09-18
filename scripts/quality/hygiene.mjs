@@ -56,7 +56,11 @@ for (const forbiddenPrefix of ['.next/', 'node_modules/', 'out/', 'coverage/']) 
 }
 
 expect(fs.existsSync('package-lock.json'), 'npm package-lock.json must remain present');
-expect(fs.existsSync('.eslintrc.json'), 'ESLint config must remain explicit');
+expect(fs.existsSync('eslint.config.mjs'), 'ESLint flat config must remain explicit');
+expect(
+  !fs.existsSync('.eslintrc.json'),
+  'legacy .eslintrc.json must stay removed after the Next 16 ESLint migration',
+);
 
 expect(
   fs.existsSync('postcss.config.js'),
