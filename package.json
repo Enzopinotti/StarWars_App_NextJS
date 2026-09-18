@@ -16,7 +16,9 @@
     "quality": "npm run quality:hygiene && npm run quality:lint-baseline && npm run quality:format-baseline && npm run build && git diff --exit-code",
     "test:b2:runtime": "node scripts/b2/runtime-contract.mjs",
     "test:b3:swapi": "node --test test/swapi.test.mjs",
-    "test:b3:runtime": "node scripts/b3/runtime-contract.mjs"
+    "test:b3:runtime": "node scripts/b3/runtime-contract.mjs",
+    "test:b4:data": "node --test test/b4-data.test.mjs",
+    "test:b4:runtime": "node scripts/b4/runtime-contract.mjs"
   },
   "dependencies": {
     "i18next": "^23.11.4",

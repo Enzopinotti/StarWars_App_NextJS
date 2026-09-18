@@ -64,13 +64,21 @@ jobs:
         id: b3_runtime
         run: npm run test:b3:runtime
 
+      - name: B4 deterministic route/data contract
+        id: b4_data
+        run: npm run test:b4:data
+
+      - name: B4 production route/data contract
+        id: b4_runtime
+        run: npm run test:b4:runtime
+
       - name: Production audit debt inventory
         id: audit
         if: always()
         continue-on-error: true
         run: npm audit --omit=dev --audit-level=high
 
-      - name: Write B1 quality evidence
+      - name: Write quality evidence
         if: always()
         shell: bash
         run: |
@@ -83,13 +91,15 @@ jobs:
             echo "- B2 runtime/i18n: ${{ steps.b2.outcome }}"
             echo "- B3 SWAPI client: ${{ steps.b3_client.outcome }}"
             echo "- B3 SWAPI runtime: ${{ steps.b3_runtime.outcome }}"
+            echo "- B4 route/data unit: ${{ steps.b4_data.outcome }}"
+            echo "- B4 route/data runtime: ${{ steps.b4_runtime.outcome }}"
             echo "- production audit debt: ${{ steps.audit.outcome }}"
             echo "- lint ceiling: 0 errors / 16 warnings"
             echo "- format ceiling: 34 files"
           } | tee quality-summary.md
           cat quality-summary.md >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload B1 quality evidence
+      - name: Upload quality evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:

@@ -23,6 +23,9 @@ export function isSwapiError(error) {
 
 const DEFAULT_BASE_URL = 'https://swapi.dev/api/';
 const DEFAULT_TIMEOUT_MS = 5000;
+const DEFAULT_PEOPLE_CONCURRENCY = 3;
+const DEFAULT_CHARACTER_CONCURRENCY = 4;
+const MAX_PEOPLE_PAGES = 20;
 
 function readBaseUrl() {
   if (typeof window === 'undefined' && process.env.SWAPI_BASE_URL) {
@@ -62,6 +65,28 @@ function resolveSwapiUrl(resource, baseUrl) {
   }
 
   return url.toString();
+}
+
+function normalizeConcurrency(value, fallback) {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? Math.min(parsed, 10) : fallback;
+}
+
+async function mapWithConcurrency(items, mapper, concurrency) {
+  const results = new Array(items.length);
+  let nextIndex = 0;
+
+  async function worker() {
+    while (nextIndex < items.length) {
+      const index = nextIndex;
+      nextIndex += 1;
+      results[index] = await mapper(items[index], index);
+    }
+  }
+
+  const workerCount = Math.min(concurrency, items.length);
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
+  return results;
 }
 
 export async function requestSwapiJson(
@@ -167,6 +192,36 @@ export async function getPeoplePage(page = 1, options = {}) {
   return payload;
 }
 
+export async function getAllPeople(options = {}) {
+  const {
+    concurrency = DEFAULT_PEOPLE_CONCURRENCY,
+    ...requestOptions
+  } = options;
+  const firstPage = await getPeoplePage(1, requestOptions);
+
+  if (firstPage.count === 0) return [];
+  if (firstPage.results.length === 0) {
+    throw malformed('Star Wars data source returned an empty first people page.');
+  }
+
+  const totalPages = Math.ceil(firstPage.count / firstPage.results.length);
+  if (totalPages > MAX_PEOPLE_PAGES) {
+    throw malformed('Star Wars data source returned an unexpected people page count.');
+  }
+
+  const pageNumbers = Array.from(
+    { length: Math.max(0, totalPages - 1) },
+    (_, index) => index + 2,
+  );
+  const remainingPages = await mapWithConcurrency(
+    pageNumbers,
+    (page) => getPeoplePage(page, requestOptions),
+    normalizeConcurrency(concurrency, DEFAULT_PEOPLE_CONCURRENCY),
+  );
+
+  return [firstPage, ...remainingPages].flatMap((page) => page.results);
+}
+
 export async function getPerson(id, options = {}) {
   const payload = await requestSwapiJson(
     `people/${encodeURIComponent(id)}/`,
@@ -206,6 +261,24 @@ export async function getFilm(id, options = {}) {
 
 export async function getCharacterByUrl(url, options = {}) {
   return getPersonFromAbsoluteUrl(url, options);
+}
+
+export async function getCharactersByUrls(urls, options = {}) {
+  requireArray(urls, 'film character URLs');
+
+  const {
+    concurrency = DEFAULT_CHARACTER_CONCURRENCY,
+    ...requestOptions
+  } = options;
+  const uniqueUrls = [...new Set(urls)];
+  const entries = await mapWithConcurrency(
+    uniqueUrls,
+    async (url) => [url, await getCharacterByUrl(url, requestOptions)],
+    normalizeConcurrency(concurrency, DEFAULT_CHARACTER_CONCURRENCY),
+  );
+  const charactersByUrl = new Map(entries);
+
+  return urls.map((url) => charactersByUrl.get(url));
 }
 
 async function getPersonFromAbsoluteUrl(url, options) {

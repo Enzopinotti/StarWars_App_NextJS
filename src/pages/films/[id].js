@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { useTranslation } from 'react-i18next';
 import SimpleCharacterCard from '../../components/SimpleCharacterCard';
 import {
-  getCharacterByUrl,
+  getCharactersByUrls,
   getFilm,
   isSwapiError,
   SWAPI_ERROR_CODES,
@@ -34,9 +34,7 @@ export async function getServerSideProps(context) {
   }
 
   try {
-    const characters = await Promise.all(
-      film.characters.map((url) => getCharacterByUrl(url)),
-    );
+    const characters = await getCharactersByUrls(film.characters);
 
     return {
       props: {

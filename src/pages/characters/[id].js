@@ -62,7 +62,7 @@ const CharacterDetail = ({ character, upstreamError }) => {
   return (
     <>
       <Head>
-        <title>{`${character.name} | Star Wars')}`}</title>
+        <title>{`${character.name} | Star Wars`}</title>
       </Head>
       <div className="text-white rounded-3xl shadow-xl bg-gradient-to-t from-black-opacity-80 to-transparent p-5 m-5 relative">
         <h2 className="text-center font-robotoMono text-xl mb-4 absolute top-8 left-10">

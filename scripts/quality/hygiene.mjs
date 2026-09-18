@@ -99,6 +99,31 @@ for (const pagePath of [
   );
 }
 
+expect(
+  fs.existsSync('src/lib/character-query.mjs'),
+  'B4 requires a server-side character pagination/filter model',
+);
+
+const charactersPage = read('src/pages/characters/index.js');
+expect(
+  !charactersPage.includes('useEffect'),
+  'B4 characters route must not refill the browser by fetching all SWAPI pages',
+);
+expect(
+  !charactersPage.includes('getPeoplePage'),
+  'B4 characters route must use the bounded server-side catalog contract',
+);
+
+const filmDetail = read('src/pages/films/[id].js');
+expect(
+  filmDetail.includes('getCharactersByUrls'),
+  'B4 film detail must use the bounded character fan-out helper',
+);
+expect(
+  !filmDetail.includes('Promise.all('),
+  'B4 film detail must not own an unbounded Promise.all character fan-out',
+);
+
 if (failures.length) {
   console.error('B1 hygiene contract failed:');
   for (const failure of failures) console.error(`- ${failure}`);
@@ -108,3 +133,4 @@ if (failures.length) {
 console.log('B1 hygiene contract passed.');
 console.log('B2 config/i18n hygiene contract passed.');
 console.log('B3 SWAPI boundary hygiene contract passed.');
+console.log('B4 route/data hygiene contract passed.');
