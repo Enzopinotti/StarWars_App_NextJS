@@ -322,15 +322,22 @@ jobs:
           set -e
           test "$format_code" -eq 1
 
-      - name: Commit validated B1 toolchain
+      - name: Verify candidate diff
         shell: bash
-        run: |
-          set -euo pipefail
-          git diff --check
-          git config user.name "Enzo Pinotti"
-          git config user.email "enzopinottii@gmail.com"
-          git add package.json package-lock.json .nvmrc .npmrc scripts/quality .github/workflows/quality.yml
-          git commit -m "B1: establish reproducible read-only quality toolchain"
-          git fetch origin modernize/2026-next-quality
-          git rebase origin/modernize/2026-next-quality
-          git push origin HEAD:modernize/2026-next-quality
+        run: git diff --check
+
+      - name: Export validated B1 candidate
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: b1-validated-candidate
+          retention-days: 7
+          if-no-files-found: error
+          path: |
+            package.json
+            package-lock.json
+            .nvmrc
+            .npmrc
+            scripts/quality/hygiene.mjs
+            scripts/quality/lint-baseline.mjs
+            scripts/quality/format-baseline.mjs
+            .github/workflows/quality.yml
