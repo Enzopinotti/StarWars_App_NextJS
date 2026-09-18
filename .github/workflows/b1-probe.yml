@@ -1,0 +1,66 @@
+name: B1 quality probe
+
+on:
+  push:
+    branches:
+      - modernize/2026-next-quality
+    paths:
+      - .github/workflows/b1-probe.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Setup Node 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24.20.0
+          cache: npm
+      - name: Install baseline
+        run: npm ci
+      - name: Direct ESLint probe
+        id: lint
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          npx --no-install eslint "src/**/*.{js,jsx}" > b1-eslint.txt 2>&1
+          code=$?
+          echo "exit=$code" | tee b1-eslint-status.txt
+          cat b1-eslint.txt
+          exit "$code"
+      - name: Prettier 3.9.8 debt probe
+        shell: bash
+        run: |
+          set +e
+          npx --yes prettier@3.9.8 --list-different "src/**/*.{js,jsx,json,css}" "*.js" "*.mjs" "*.json" > b1-prettier-different.txt 2> b1-prettier.stderr
+          code=$?
+          count="$(grep -cve '^$' b1-prettier-different.txt || true)"
+          echo "exit=$code" | tee b1-prettier-status.txt
+          echo "different_files=$count" | tee b1-prettier-count.txt
+          cat b1-prettier-different.txt
+          exit 0
+      - name: Config duplication inventory
+        shell: bash
+        run: |
+          {
+            test -f postcss.config.js && echo "postcss.config.js=present"
+            test -f postcss.config.mjs && echo "postcss.config.mjs=present"
+          } | tee b1-config-inventory.txt
+      - name: Upload B1 probe
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: b1-quality-probe-${{ github.sha }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            b1-*.txt
+            b1-*.stderr
