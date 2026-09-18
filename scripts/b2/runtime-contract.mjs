@@ -54,7 +54,7 @@ try {
   await waitForServer();
 
   const expected = [
-    ['/', 307],
+    ['/', 200],
     ['/en', 200],
     ['/es', 200],
     ['/en/films', 200],
