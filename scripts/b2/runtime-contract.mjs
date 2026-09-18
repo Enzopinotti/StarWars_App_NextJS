@@ -40,8 +40,8 @@ async function waitForServer() {
 }
 
 const server = spawn(
-  process.platform === 'win32' ? 'npm.cmd' : 'npm',
-  ['start', '--', '-p', String(PORT)],
+  process.execPath,
+  ['node_modules/next/dist/bin/next', 'start', '-p', String(PORT)],
   {
     env: { ...process.env, NEXT_TELEMETRY_DISABLED: '1' },
     stdio: ['ignore', 'pipe', 'pipe'],
