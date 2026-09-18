@@ -1,0 +1,76 @@
+name: B6 Dependency Refresh
+
+on:
+  push:
+    branches:
+      - modernize/b6-deps
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: ${{ !contains(github.event.head_commit.message, '[lock-generated]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 1
+
+      - name: Setup pinned Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Refresh lockfile within declared ranges
+        run: npm install --package-lock-only --ignore-scripts
+
+      - name: Stage generated lockfile locally
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "Enzo Pinotti"
+          git config user.email "enzopinottii@gmail.com"
+          git add package.json package-lock.json
+          if git diff --cached --quiet; then
+            echo "lockfile-change=false" >> "$GITHUB_ENV"
+          else
+            git commit -m "B6.1: refresh lockfile [lock-generated]"
+            echo "lockfile-change=true" >> "$GITHUB_ENV"
+          fi
+
+      - name: Install generated graph
+        run: npm ci
+
+      - name: Run read-only quality
+        run: npm run quality
+
+      - name: Run behavioral contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run test:b2:runtime
+          npm run test:b3:swapi
+          npm run test:b3:runtime
+          npm run test:b4:data
+          npm run test:b4:runtime
+          npm run test:b5:semantics
+          npm run test:b5:runtime
+
+      - name: Record production audit after refresh
+        shell: bash
+        run: |
+          npm audit --omit=dev --json > b6.1-audit.json || true
+          node - <<'NODE'
+          const fs = require('fs')
+          const audit = JSON.parse(fs.readFileSync('b6.1-audit.json', 'utf8'))
+          const v = audit.metadata?.vulnerabilities ?? {}
+          console.log('production-audit=info:' + (v.info ?? 0) + ',low:' + (v.low ?? 0) + ',moderate:' + (v.moderate ?? 0) + ',high:' + (v.high ?? 0) + ',critical:' + (v.critical ?? 0) + ',total:' + (v.total ?? 0))
+          NODE
+
+      - name: Push validated generated lockfile
+        if: env.lockfile-change == 'true'
+        run: git push origin HEAD:modernize/b6-deps
