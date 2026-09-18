@@ -1,0 +1,337 @@
+name: B1 materialize toolchain
+
+on:
+  push:
+    branches:
+      - modernize/2026-next-quality
+    paths:
+      - .github/workflows/b1-materialize.yml
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+
+      - name: Setup verified Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24.20.0
+          cache: npm
+
+      - name: Install baseline
+        run: npm ci
+
+      - name: Write B1 toolchain contract
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          printf 'v24.20.0\n' > .nvmrc
+          printf 'engine-strict=true\n' > .npmrc
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+
+          pkg.engines = {
+            node: '>=24.20.0 <25',
+            npm: '>=11.19.0 <12',
+          };
+          pkg.packageManager = 'npm@11.19.0';
+
+          pkg.scripts = {
+            ...pkg.scripts,
+            lint: 'eslint "src/**/*.{js,jsx}"',
+            'lint:fix': 'eslint "src/**/*.{js,jsx}" --fix',
+            'format:check': 'prettier --check "src/**/*.{js,jsx,json,css}" "*.js" "*.mjs" "*.json"',
+            'format:write': 'prettier --write "src/**/*.{js,jsx,json,css}" "*.js" "*.mjs" "*.json"',
+            'quality:hygiene': 'node scripts/quality/hygiene.mjs',
+            'quality:lint-baseline': 'node scripts/quality/lint-baseline.mjs',
+            'quality:format-baseline': 'node scripts/quality/format-baseline.mjs',
+            quality: 'npm run quality:hygiene && npm run quality:lint-baseline && npm run quality:format-baseline && npm run build && git diff --exit-code',
+          };
+
+          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          NODE
+
+          npm install --save-dev --save-exact prettier@3.9.8
+
+          mkdir -p scripts/quality
+
+          cat > scripts/quality/hygiene.mjs <<'JS'
+          import fs from 'node:fs';
+          import { execFileSync } from 'node:child_process';
+
+          const failures = [];
+          const read = (path) => fs.readFileSync(path, 'utf8');
+
+          function expect(condition, message) {
+            if (!condition) failures.push(message);
+          }
+
+          const pkg = JSON.parse(read('package.json'));
+
+          expect(pkg.private === true, 'package.json must remain private=true');
+          expect(
+            pkg.packageManager === 'npm@11.19.0',
+            'packageManager must pin npm@11.19.0',
+          );
+          expect(
+            pkg.engines?.node === '>=24.20.0 <25',
+            'Node engine must stay on verified Node 24',
+          );
+          expect(
+            pkg.engines?.npm === '>=11.19.0 <12',
+            'npm engine must stay on verified npm 11',
+          );
+          expect(read('.nvmrc').trim() === 'v24.20.0', '.nvmrc must pin v24.20.0');
+          expect(
+            read('.npmrc').split(/\r?\n/).includes('engine-strict=true'),
+            '.npmrc must enforce engine-strict=true',
+          );
+
+          for (const [scriptName, forbidden] of [
+            ['lint', '--fix'],
+            ['format:check', '--write'],
+            ['quality', '--fix'],
+            ['quality', '--write'],
+          ]) {
+            const script = pkg.scripts?.[scriptName] ?? '';
+            expect(
+              !script.includes(forbidden),
+              `${scriptName} must remain read-only and cannot contain ${forbidden}`,
+            );
+          }
+
+          const tracked = execFileSync('git', ['ls-files'], {
+            encoding: 'utf8',
+          })
+            .split(/\r?\n/)
+            .filter(Boolean);
+
+          for (const forbiddenPrefix of ['.next/', 'node_modules/', 'out/', 'coverage/']) {
+            expect(
+              !tracked.some((path) => path.startsWith(forbiddenPrefix)),
+              `tracked generated path found: ${forbiddenPrefix}`,
+            );
+          }
+
+          expect(fs.existsSync('package-lock.json'), 'npm package-lock.json must remain present');
+          expect(fs.existsSync('.eslintrc.json'), 'ESLint config must remain explicit');
+
+          const postcssConfigs = ['postcss.config.js', 'postcss.config.mjs'].filter((p) =>
+            fs.existsSync(p),
+          );
+          expect(
+            postcssConfigs.length === 2,
+            'B1 expects the two historical PostCSS configs to remain visible until B2 selects authority',
+          );
+
+          if (failures.length) {
+            console.error('B1 hygiene contract failed:');
+            for (const failure of failures) console.error(`- ${failure}`);
+            process.exit(1);
+          }
+
+          console.log('B1 hygiene contract passed.');
+          console.log('Known B2 config debt: postcss.config.js + postcss.config.mjs both present.');
+          JS
+
+          cat > scripts/quality/lint-baseline.mjs <<'JS'
+          import { spawnSync } from 'node:child_process';
+
+          const MAX_ERRORS = 0;
+          const MAX_WARNINGS = 17;
+
+          const result = spawnSync(
+            process.platform === 'win32' ? 'npx.cmd' : 'npx',
+            ['--no-install', 'eslint', 'src/**/*.{js,jsx}', '--format', 'json'],
+            { encoding: 'utf8' },
+          );
+
+          let reports;
+          try {
+            reports = JSON.parse(result.stdout || '[]');
+          } catch {
+            console.error(result.stdout);
+            console.error(result.stderr);
+            console.error('Unable to parse ESLint JSON output.');
+            process.exit(1);
+          }
+
+          const errors = reports.reduce((sum, report) => sum + report.errorCount, 0);
+          const warnings = reports.reduce((sum, report) => sum + report.warningCount, 0);
+
+          console.log(`ESLint baseline: errors=${errors}, warnings=${warnings}`);
+          console.log(`Allowed B1 ceiling: errors<=${MAX_ERRORS}, warnings<=${MAX_WARNINGS}`);
+
+          if (errors > MAX_ERRORS || warnings > MAX_WARNINGS) {
+            console.error('ESLint debt regressed above the B1 baseline.');
+            process.exit(1);
+          }
+          JS
+
+          cat > scripts/quality/format-baseline.mjs <<'JS'
+          import { spawnSync } from 'node:child_process';
+
+          const MAX_DIFFERENT_FILES = 35;
+
+          const args = [
+            '--no-install',
+            'prettier',
+            '--list-different',
+            'src/**/*.{js,jsx,json,css}',
+            '*.js',
+            '*.mjs',
+            '*.json',
+          ];
+
+          const result = spawnSync(
+            process.platform === 'win32' ? 'npx.cmd' : 'npx',
+            args,
+            { encoding: 'utf8' },
+          );
+
+          if (![0, 1].includes(result.status ?? 1)) {
+            console.error(result.stdout);
+            console.error(result.stderr);
+            console.error('Prettier debt probe failed unexpectedly.');
+            process.exit(1);
+          }
+
+          const files = (result.stdout || '')
+            .split(/\r?\n/)
+            .map((line) => line.trim())
+            .filter(Boolean);
+
+          console.log(`Prettier baseline: different_files=${files.length}`);
+          console.log(`Allowed B1 ceiling: different_files<=${MAX_DIFFERENT_FILES}`);
+
+          if (files.length > MAX_DIFFERENT_FILES) {
+            console.error('Formatting debt regressed above the B1 baseline.');
+            for (const file of files) console.error(`- ${file}`);
+            process.exit(1);
+          }
+          JS
+
+          mkdir -p .github/workflows
+          cat > .github/workflows/quality.yml <<'YAML'
+          name: Quality
+
+          on:
+            pull_request:
+              branches:
+                - main
+            push:
+              branches:
+                - main
+                - modernize/2026-next-quality
+            workflow_dispatch:
+
+          permissions:
+            contents: read
+
+          concurrency:
+            group: quality-${{ github.workflow }}-${{ github.ref }}
+            cancel-in-progress: true
+
+          jobs:
+            quality:
+              runs-on: ubuntu-latest
+              timeout-minutes: 20
+              steps:
+                - name: Checkout exact commit
+                  uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+                - name: Setup pinned Node runtime
+                  uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+                  with:
+                    node-version-file: .nvmrc
+                    cache: npm
+                - name: Verify runtime identity
+                  shell: bash
+                  run: |
+                    set -euo pipefail
+                    expected_node="$(tr -d '\r\n' < .nvmrc)"
+                    actual_node="$(node --version)"
+                    expected_npm="$(node -p "require('./package.json').packageManager.split('@')[1]")"
+                    actual_npm="$(npm --version)"
+                    printf 'node=%s\n' "$actual_node"
+                    printf 'npm=%s\n' "$actual_npm"
+                    printf 'sha=%s\n' "$GITHUB_SHA"
+                    test "$actual_node" = "$expected_node"
+                    test "$actual_npm" = "$expected_npm"
+                - name: Install from lockfile
+                  run: npm ci
+                - name: Blocking read-only quality contract
+                  id: quality
+                  run: npm run quality
+                - name: Production audit debt inventory
+                  id: audit
+                  if: always()
+                  continue-on-error: true
+                  run: npm audit --omit=dev --audit-level=high
+                - name: Write quality summary
+                  if: always()
+                  shell: bash
+                  run: |
+                    {
+                      echo "# B1 quality evidence"
+                      echo "- SHA: ${GITHUB_SHA}"
+                      echo "- Node: $(node --version 2>/dev/null || echo unavailable)"
+                      echo "- npm: $(npm --version 2>/dev/null || echo unavailable)"
+                      echo "- quality: ${{ steps.quality.outcome }}"
+                      echo "- production audit debt: ${{ steps.audit.outcome }}"
+                      echo "- lint ceiling: 0 errors / 17 warnings"
+                      echo "- format ceiling: 35 files"
+                    } | tee b1-quality-summary.md
+                    cat b1-quality-summary.md >> "$GITHUB_STEP_SUMMARY"
+                - name: Upload B1 quality evidence
+                  if: always()
+                  uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+                  with:
+                    name: b1-quality-${{ github.sha }}
+                    retention-days: 30
+                    if-no-files-found: error
+                    path: b1-quality-summary.md
+          YAML
+
+      - name: Reinstall exact generated graph
+        shell: bash
+        run: |
+          rm -rf node_modules
+          npm ci
+
+      - name: Validate B1 quality
+        run: npm run quality
+
+      - name: Verify direct commands remain non-mutating
+        shell: bash
+        run: |
+          npm run lint
+          set +e
+          npm run format:check
+          format_code=$?
+          set -e
+          test "$format_code" -eq 1
+          git diff --exit-code
+
+      - name: Commit validated B1 toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          git config user.name "Enzo Pinotti"
+          git config user.email "enzopinottii@gmail.com"
+          git add package.json package-lock.json .nvmrc .npmrc scripts/quality .github/workflows/quality.yml
+          git commit -m "B1: establish reproducible read-only quality toolchain"
+          git fetch origin modernize/2026-next-quality
+          git rebase origin/modernize/2026-next-quality
+          git push origin HEAD:modernize/2026-next-quality
