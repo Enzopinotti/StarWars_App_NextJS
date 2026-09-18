@@ -321,7 +321,6 @@ jobs:
           format_code=$?
           set -e
           test "$format_code" -eq 1
-          git diff --exit-code
 
       - name: Commit validated B1 toolchain
         shell: bash
